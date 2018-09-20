@@ -42,8 +42,8 @@ typedef struct CallbackContext {
 static CallbackContext callbackContext;
 
 static
-void onSessionRequestCallback(ElaCarrier* carrier, const char* from, const char* sdp,
-                              size_t len, void* context)
+void onSessionRequestCallback(ElaCarrier* carrier, const char* from, const char *bundle,
+                              const char* sdp, size_t len, void* context)
 {
     CallbackContext* cc = (CallbackContext*)context;
     int needDetach = 0;
@@ -53,6 +53,7 @@ void onSessionRequestCallback(ElaCarrier* carrier, const char* from, const char*
 
     assert(carrier);
     assert(from);
+    assert(!bundle);
     assert(sdp);
 
     (void)carrier;

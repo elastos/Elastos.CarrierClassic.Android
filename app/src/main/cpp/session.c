@@ -94,8 +94,8 @@ void callbackCtxtCleanup(CallbackContext* cc, JNIEnv* env)
 }
 
 static
-void onSessionRequestCompleteCb(ElaSession* session, int status, const char* reason,
-                                const char* sdp, size_t len, void* context)
+void onSessionRequestCompleteCb(ElaSession* session, const char *bundle, int status,
+                                const char* reason, const char* sdp, size_t len, void* context)
 {
     CallbackContext* cc = (CallbackContext*)context;
     int needDetach = 0;
