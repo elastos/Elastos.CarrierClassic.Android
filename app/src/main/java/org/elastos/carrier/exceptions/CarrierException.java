@@ -61,14 +61,6 @@ public abstract class CarrierException extends Exception {
 		this.errorCode = errorCode;
 	}
 
-	protected int getErrorCode() {
-		return errorCode;
-	}
-
-	private static int getFacility(int errorCode) {
-		return (errorCode & 0x8FFFFFFF) >> 24;
-	}
-
 	@Override
 	public String getMessage() {
 		String message = super.getMessage();
@@ -87,6 +79,14 @@ public abstract class CarrierException extends Exception {
 		return errorCode & 0x00FFFFFF;
 	}
 
+	public int getErrorCode() {
+		return errorCode;
+	}
+
+	private static int getFacility(int errorCode) {
+		return (errorCode & 0x8FFFFFFF) >> 24;
+	}
+	
 	public static CarrierException fromErrorCode(int errorCode, String message, Throwable cause) {
 		CarrierException e;
 
