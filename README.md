@@ -5,29 +5,108 @@ Elastos Carrier Android SDK
 
 ## Summary
 
-Elastos Carrier Android SDK is java api wrapper for Elastos Native Carrier, where Carrier is a decentralized peer to peer communication framework.
+Elastos Carrier Android SDK is a Java API wrapper for the C language based [Elastos Carrier Native SDK](https://github.com/elastos/Elastos.NET.Carrier.Native.SDK). With the Android Carrier SDK, it is possible to build applications for mobile phones, tablets, wearables, TVs and car media systems that run on the Android Operating System (OS) while utilizing the functionalities of the Elastos Carrier.
+
+The Elastos Carrier is a decentralized and encrypted peer-to-peer (P2P) communication framework that routes network traffic between virtual machines and Decentralized Applications (DApps).
+
+The authentication process of peer nodes utilizes the Elastos Decentralized ID (DID) sidechain. （TODO）
 
 ## Build from source
 
-### 1.Build Carrier NDK
+### 1. Cross-compilation for Android Platform on Ubuntu / Debian / Linux or MacOS host
 
-You need to build carrier android ndk distributions from the Carrier native repository with following github address.
+***************
+
+With CMake, Elastos Carrier can be cross-compiled to run on Android as a target platform, while compilation is carried out on a(n) Ubuntu / Debian / Linux or MacOS host.
+
+**Prerequisite**: Android NDK 'android-ndk-r16b' or higher must be downloaded onto the host.
+Android NDKs (such as 'Linux 64-bit (x86)' or 'Mac' ) can be downloaded from https://developer.android.com/ndk/downloads/ .
+Please make sure to extract the downloaded NDK.
+
+Open a new terminal window.
+
+Download the **Elastos.NET.Carrier.Native.SDK** (not the Elastos.NET.Carrier.Android.SDK) repository using Git:
+```shell
+$ git clone https://github.com/elastos/Elastos.NET.Carrier.Native.SDK
+```
+
+Navigate to the previously downloaded folder that contains the source code of the Carrier project.
+
+```shell
+$ cd YOUR-PATH/Elastos.NET.Carrier.Native.SDK
+```
+
+Enter the 'build' folder.
+```shell
+$ cd build
+```
+
+Create a new folder with the target platform name, then change directory.
+```shell
+$ mkdir android
+$ cd android
+```
+
+To generate the required Makefile in the current directory, please make sure to first replace 'YOUR-TARGET-ARCHITECTURE'
+and 'YOUR-ANDROID-NDK-HOME' with the correct option and path.
+
+-DANDROID_ABI accepts the following target architecture options:
+* armeabi-v7a
+* arm64-v8a
+* x86
+* x86_64
+
+Replace 'YOUR-ANDROID-NDK-HOME' with the path to the extracted NDK folder.
+
+Run the command with the correct options described above:
+```shell
+$ cmake -DANDROID_ABI=YOUR-TARGET-ARCHITECTURE -DANDROID_NDK_HOME=YOUR-ANDROID-NDK-HOME -DCMAKE_TOOLCHAIN_FILE=../../cmake/AndroidToolchain.cmake ../..
 
 ```
-https://github.com/elastos/Elastos.NET.Carrier.Native.SDK
+
+Build the program: <br/>
+Note: If "make" fails due to missing permissions, use "sudo make" instead.
+```shell
+$ make
 ```
 
-Finished building android ndk for Carrier, you would have the following native shared libraries:
 
+
+Install the program: <br/>
+Note: If "make install" fails due to missing permissions, use "sudo make install" instead.
+```shell
+$ make install
+```
+
+
+Create distribution package: <br/>
+Note: If "make dist" fails due to missing permissions, use "sudo make dist" instead.
+```
+$ make dist
+```
+
+Note: To build for multiple target architectures separately, repeat the steps starting from:
+
+Run the command with the correct options described above:
+```shell
+$ cmake -DANDROID_ABI=YOUR-TARGET-ARCHITECTURE -DANDROID_NDK_HOME=YOUR-ANDROID-NDK-HOME -DCMAKE_TOOLCHAIN_FILE=../../cmake/AndroidToolchain.cmake ../..
+
+```
+
+For each architecture, the distribution package will contain the following files:
 ```
 libcrystal.so
 libelacarrier.so
 libelasession.so
 ```
 
-to each CPU architecture, currently supported for **armv7l**, **arm64**, **x86**, **x86-64** respectively.
+These shared native libraries will have to be later imported into the Android project based on their
+target architectures.
 
-### 2.Import Carrier NDK
+Currently, the CPU architectures **armv7l**, **arm64**, **x86**, **x86-64** are supported.
+
+
+### 2.Import Shared Native Libraries
 
 The directory **"app/native-dist"** to import native libraries and headers should have following directory structure:
 
