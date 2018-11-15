@@ -3,7 +3,7 @@ Elastos Carrier Android SDK
 
 [![Build Status](https://travis-ci.org/elastos/Elastos.NET.Carrier.Android.SDK.svg)](https://travis-ci.org/elastos/Elastos.NET.Carrier.Android.SDK)
 
-## Summary
+## Introduction
 
 Elastos Carrier Android SDK is a Java API wrapper for the C language based [Elastos Carrier Native SDK](https://github.com/elastos/Elastos.NET.Carrier.Native.SDK). With the Android Carrier SDK, it is possible to build applications for mobile phones, tablets, wearables, TVs and car media systems that run on the Android Operating System (OS) while utilizing the functionalities of the Elastos Carrier.
 
