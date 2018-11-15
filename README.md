@@ -103,12 +103,39 @@ libelasession.so
 These shared native libraries will have to be later imported into the Android project based on their
 target architectures.
 
-Currently, the CPU architectures **armv7l**, **arm64**, **x86**, **x86-64** are supported.
+Currently, the target CPU architectures **armv7l**, **arm64**, **x86**, **x86-64** are supported.
+
+### 2. Import Android project
+
+**Prerequisite**: Android Studio must be installed (Download from https://developer.android.com/studio/ ).
+Android NDK must be installed within Android Studio (File >> Settings >>Appearance and Behavior >> System Settings >> Android SDK -> SDK Tools (Tab) -> NDK (active))
+
+Option 1: Start Android Studio and select "Check out project from Version Control", then select Git and add the URL
+https://github.com/elastos/Elastos.NET.Carrier.Android.SDK , click clone.
+
+Option 2: Download the Elastos.NET.Carrier.Android.SDK with Git:
+```shell
+$ git clone https://github.com/elastos/Elastos.NET.Carrier.Android.SDK
+```
+then start Android Studio and import the project with the option 'Open an existing Android Studio project'.
 
 
-### 2.Import Shared Native Libraries
+Select 'Create project from existing sources', click next, click finish.
 
-The directory **"app/native-dist"** to import native libraries and headers should have following directory structure:
+Wait for all the import processes to finish.
+
+
+### 3. Import Shared Native Libraries
+
+In the Project View on the left side, navigate to the directory **"app/native-dist/libs"** .
+
+Under the native-dist folder, create a new folder with the name of the target architecture such as armeabi-v7a, arm64-v8a,
+x86, x86-64 or all of them, depending on which are relevant for your needs.
+
+From Step 1 (Cross-compilation for Android Platform) in this documentation, copy the created native libraries ( .so files )
+into the target directories.
+
+Your project should have following directory structure:
 
 ```
 app/native-dist
@@ -134,36 +161,48 @@ app/native-dist
           |--libelasession.so
 ```
 
-The headers under subdirectory **"include"** are public header files exported from Carrier native. And shared libraries under **libs** to each CPU arch are built from Carrier native.
+The files under the subdirectory **"app/native-dist/include"** are public header files and are already exported from Carrier native.
 
-### 3. Build Carrier SDK
+### 4. Build Carrier SDK
 
-After importing dependencies from Carrier native, you need Android Studio to open this project and build Carrier Android SDK.
+Depending on which native libraries for target architectures were imported previously, adjust the code in
+Elastos.NET.Carrier.Android.SDK\app\build.gradle on the following lines:
 
-### 4. Output
+C:\Users\akoss\AndroidStudioProjects\Elastos.NET.Carrier.Android.SDK\app\build.gradle
+```shell
+ndk {
+    abiFilters 'armeabi-v7a', 'arm64-v8a', 'x86', 'x86_64'
+}
+```
+Only those target architectures should stay for which the native libraries were imported.
 
-After building with success, the output dist named **org.elastos.carrier-debug(release).aar** carrying jar package and JNI shared libraries to different CPU arch would be put under the directory:
+Further adjustments are optional.
 
+In Android Studio, click 'Make Project', then 'Build Project'.
+
+### 5. Output
+
+After building with success, the output distribution package named **org.elastos.carrier-debug(release).aar**, carrying the JAR package and JNI shared libraries to different CPU architectures, will be put under the directory:
 ```
 app/build/outputs/aar
 ```
 
 ## Basic Tests
 
-All basic tests are located under directory **"app/src/androidTest"**. You can run the tests on Android Studio. Before running tests, you need to uncomment **"service"** configuration in AndroidMinifest.xml.
+All basic tests are located under the directory **"app/src/androidTest"**. These tests can be run in Android Studio.
+Before running the tests, uncomment the **"service"** configuration in AndroidMinifest.xml.
 
 ## Build Docs
 
-Open **Tools** tab on Android Studio and click **Generate JavaDoc...** item to generate the Java API document.
+Open **Tools** tab in Android Studio and click the **Generate JavaDoc...** item to generate the Java API document.
 
-## Thanks
+## Contribution
 
-Sincerely thanks to all teams and projects that we relies on directly or indirectly.
+We welcome contributions to the Elastos Carrier Android SDK Project.
 
-## Contributing
+## Acknowledgments
 
-We welcome contributions to the Elastos Carrier Android Project (or Native Project) in many forms.
+A sincere thank you to all teams and projects that we rely on directly or indirectly.
 
 ## License
-
-Elastos Carrier Android Project source code files are made available under the MIT License, located in the LICENSE file.
+This project is licensed under the terms of the [MIT license](https://github.com/elastos/Elastos.NET.Carrier.Android.SDK/blob/master/LICENSE).
