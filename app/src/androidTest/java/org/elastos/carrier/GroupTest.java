@@ -63,7 +63,7 @@ public class GroupTest {
 			bundle.setHello(hello);
 			mContext.setExtra(bundle);
 
-			Log.d(TAG, "Received riend reqeust from " + userId + " with hello: " + hello);
+			Log.d(TAG, "Received friend request from " + userId + " with hello: " + hello);
 			commonSyncher.wakeup();
 		}
 
