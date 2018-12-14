@@ -245,12 +245,37 @@ public class GroupInviteJoinTest {
 			assertEquals("ginvite", args[0]);
 			assertEquals("received", args[1]);
 
-			// twice
-			group.invite(robot.getNodeid());
+			assertTrue(robot.writeCmd("gjoin"));
+
+			// wait until robot having joined in the group
 			args = robot.readAck();
 			assertEquals(2, args.length);
-			assertEquals("ginvite", args[0]);
-			assertEquals("received", args[1]);
+			assertEquals("gjoin", args[0]);
+			assertEquals("succeeded", args[1]);
+
+			// wait until onPeerListChanged callback invoked
+			groupSyncher.await();
+
+			// twice
+			group.invite(robot.getNodeid());
+
+			String hello = "hello";
+			group.sendMessage(hello.getBytes());
+			args = robot.readAck();
+			assertEquals(2, args.length);
+			assertEquals("gmsg", args[0]);
+			assertEquals(hello, args[1]);
+
+			assertTrue(robot.writeCmd("gleave"));
+
+			// wait until robot having left the group
+			args = robot.readAck();
+			assertEquals(2, args.length);
+			assertEquals("gleave", args[0]);
+			assertEquals("succeeded", args[1]);
+
+			// wait until onPeerListChanged callback invoked
+			groupSyncher.await();
 
 			carrier.groupLeave(group);
 		}
