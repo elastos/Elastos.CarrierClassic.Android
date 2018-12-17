@@ -16,6 +16,14 @@ import static org.junit.Assert.fail;
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
+		//Session
+		ManagerTest.class,
+		NewTest.class,
+		RequestReplyTest.class,
+		StreamTest.class,
+		PortforwardingTest.class,
+		ChannelTest.class,
+
 		//Carrier
 		GetInstanceTest.class,
 		NodeLoginTest.class,
@@ -34,14 +42,6 @@ import static org.junit.Assert.fail;
 		GroupListTest.class,
 		GroupGetPeerTest.class,
 		GroupMessageTest.class,
-
-		//Session
-		ManagerTest.class,
-		NewTest.class,
-		RequestReplyTest.class,
-		StreamTest.class,
-		PortforwardingTest.class,
-		ChannelTest.class
 })
 
 public class RootTestsuite {
