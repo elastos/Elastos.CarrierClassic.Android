@@ -507,11 +507,11 @@ int ela_filetransfer_pull(ElaFileTransfer *filetransfer, const char *fileid,
  *                            argument @length being zero).
  *
  * @return
- *      0 on success, or -1 if an error occurred. The specific error code
+ *      Sent bytes on success, or -1 if an error occurred. The specific error code
  *      can be retrieved by calling ela_get_error().
  */
 CARRIER_API
-int ela_filetransfer_send(ElaFileTransfer *filetransfer, const char *fileid,
+ssize_t ela_filetransfer_send(ElaFileTransfer *filetransfer, const char *fileid,
                           const uint8_t *data, size_t length);
 
 /**
@@ -646,58 +646,6 @@ typedef struct ElaFileProgressCallbacks {
      */
     void (*received)(size_t length, uint64_t totalsz, void *context);
 } ElaFileProgressCallbacks;
-
-/**
- * \~English
- * Send a file to target friend.
- *
- * This is a convenient API on top of filetransfer APIs set.
- *
- * @param
- *      carrier         [in] A handle to the Carrier node instance.
- * @param
- *      address         [in] The target address.
- * @param
- *      filename        [in] The full name of file to transfer.
- * @param
- *      callback        [in] A pointer to ElaFileCallbacks to handle all events
- *                           related to transfer the file.
- * @param
- *      context         [in] The application defined context data.
- *
- * @return
- *      0 on success, or -1 if an error occurred. The specific error code
- *      can be retrieved by calling ela_get_error().
- */
-CARRIER_API
-int ela_file_send(ElaCarrier *carrier, const char *address, const char *filename,
-                  ElaFileProgressCallbacks *callbacks, void *context);
-
-/**
- * \~English
- * Receive a file from target friend
- *
- * This is a convenient API on top of filetransfer APIs set.
- *
- * @param
- *      carrier         [in] A handle to the Carrier node instance.
- * @param
- *      address         [in] The target address.
- * @param
- *      filename        [in] The full name of file to transfer.
- * @param
- *      callback        [in] A pointer to ElaFileCallbacks to handle all events
- *                           related to transfer the file.
- * @param
- *      context         [in] The application defined context data.
- *
- * @return
- *      0 on success, or -1 if an error occurred. The specific error code
- *      can be retrieved by calling ela_get_error().
- */
-CARRIER_API
-int ela_file_recv(ElaCarrier *carrier, const char *address, const char *filename,
-                  ElaFileProgressCallbacks *callbacks, void *context);
 
 #ifdef __cplusplus
 }
