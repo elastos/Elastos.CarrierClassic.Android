@@ -47,11 +47,6 @@ public class FileTransfer {
 	private native boolean native_pend(String fileId);
 	private native boolean native_resume(String fileId);
 
-	private	static native boolean native_easy_send(Carrier carrier, String to, String filename,
-												   FileProgressHandler handler);
-	private static native boolean native_easy_recv(Carrier carrier, String from, String filename,
-												   FileProgressHandler handler);
-
 	private static native int get_error_code();
 
 	private FileTransfer() {}
