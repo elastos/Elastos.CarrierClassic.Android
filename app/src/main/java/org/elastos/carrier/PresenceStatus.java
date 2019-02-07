@@ -80,7 +80,7 @@ public enum PresenceStatus {
 			case Away:
 				return 1;
 			case Busy:
-      	return 2;
+        return 2;
 			default:
 				return 0;
 		}
