@@ -28,7 +28,7 @@
 
 int setIntField(JNIEnv* env, jobject jobj, const char* name, int value)
 {
-    jclass* jcls;
+    jclass jcls;
     jfieldID fieldid;
 
     jcls = (*env)->GetObjectClass(env, jobj);
@@ -45,7 +45,7 @@ int setIntField(JNIEnv* env, jobject jobj, const char* name, int value)
 
 int setLongField(JNIEnv* env, jobject jobj, const char* name, uint64_t value)
 {
-    jclass* jcls;
+    jclass jcls;
     jfieldID fieldid;
 
     jcls = (*env)->GetObjectClass(env, jobj);
@@ -62,7 +62,7 @@ int setLongField(JNIEnv* env, jobject jobj, const char* name, uint64_t value)
 
 int getLongField(JNIEnv* env, jobject jobj, const char* name, uint64_t* value)
 {
-    jclass* jcls;
+    jclass jcls;
     jfieldID fieldid;
 
     jcls = (*env)->GetObjectClass(env, jobj);
@@ -74,6 +74,23 @@ int getLongField(JNIEnv* env, jobject jobj, const char* name, uint64_t* value)
         return 0;
 
     *value = (uint64_t)(*env)->GetLongField(env, jobj, fieldid);
+    return 1;
+}
+
+int getStaticObjectField(JNIEnv* env, jobject jobj, const char* name, const char* sig, jobject* value)
+{
+    jclass jcls;
+    jfieldID fieldid;
+
+    jcls = (*env)->GetObjectClass(env, jobj);
+    if (!jcls)
+        return 0;
+
+    fieldid = (*env)->GetStaticFieldID(env, jcls, name, sig);
+    if (!fieldid)
+        return 0;
+
+    *value = (*env)->GetStaticObjectField(env, jcls, fieldid);
     return 1;
 }
 

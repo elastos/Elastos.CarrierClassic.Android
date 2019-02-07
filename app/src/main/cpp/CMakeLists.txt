@@ -11,13 +11,17 @@ set(SOURCES
     init.c
     utils.c
     utilsExt.c
+    group.c
     carrier.c
     carrierHandler.c
     carrierUtils.c
     session.c
     sessionManager.c
     sessionUtils.c
-    stream.c)
+    stream.c
+    fileTransfer.c
+    fileTransferManager.c
+    fileTransferUtils.c)
 
 add_library(carrierjni SHARED ${SOURCES})
 
@@ -25,4 +29,5 @@ target_link_libraries(carrierjni
                       log
                       crystal
                       elacarrier
-                      elasession)
+                      elasession
+                      elafiletrans)

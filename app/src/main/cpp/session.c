@@ -105,8 +105,6 @@ void onSessionRequestCompleteCb(ElaSession* session, const char *bundle, int sta
 
     assert(session);
     assert(status == 0 || (status != 0 && reason));
-    assert(sdp);
-    assert(len > 0);
 
     env = attachJvm(&needDetach);
     if (!env) {
@@ -427,9 +425,9 @@ bool onChannelDataCallback(ElaSession* ws, int stream, int channel,
     }
     (*env)->SetByteArrayRegion(env, jdata, 0, (jsize)len, data);
 
-    if (!callVoidMethod(env, cc->clazz, cc->handler, "onChannelData",
-                        "("_S("Stream;I[B)Z"),
-                        &jresult, cc->object, channel, jdata)) {
+    if (!callBooleanMethod(env, cc->clazz, cc->handler, "onChannelData",
+                           "("_S("Stream;I[B)Z"),
+                           &jresult, cc->object, channel, jdata)) {
 
         logE("Call java callback 'boolean onChannelData(Stream, int, byte[])' error");
     }
@@ -459,9 +457,9 @@ void onChannelPendingCallback(ElaSession* ws, int stream, int channel,
     }
 
     if (!callVoidMethod(env, cc->clazz, cc->handler, "onChannelPending",
-                        "("_S("Session;I)V"),
+                        "("_S("Stream;I)V"),
                         cc->object, channel)) {
-        logE("Call java callback 'void onChannelPending(Session, int) error");
+        logE("Call java callback 'void onChannelPending(Stream, int) error");
     }
 
     detachJvm(env, needDetach);
@@ -486,9 +484,9 @@ void onChannelResumeCallback(ElaSession* ws, int stream, int channel,
     }
 
     if (!callVoidMethod(env, cc->clazz, cc->handler, "onChannelResume",
-                        "("_S("Session;I)V"),
+                        "("_S("Stream;I)V"),
                         cc->object, channel)) {
-        logE("Call java callback 'void onChannelResume(Session, int) error");
+        logE("Call java callback 'void onChannelResume(Stream, int) error");
     }
 
     detachJvm(env, needDetach);
