@@ -41,7 +41,8 @@ android {
     }
     android.libraryVariants.all { variant ->
         variant.outputs.all {
-            def manifestParser = new com.android.builder.core.DefaultManifestParser(android.sourceSets.main.manifest.srcFile, new BooleanSupplier() {
+            def manifestParser = new com.android.builder.core.DefaultManifestParser(
+                    android.sourceSets.main.manifest.srcFile, new BooleanSupplier() {
                 @Override
                 boolean getAsBoolean() {
                     return true
@@ -50,7 +51,6 @@ android {
             outputFileName = manifestParser.getPackage() + "-${buildType.name}.aar"
         }
     }
-
 }
 
 dependencies {
