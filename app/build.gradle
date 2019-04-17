@@ -1,10 +1,17 @@
 import java.util.function.BooleanSupplier
 
 apply plugin: 'com.android.library'
+apply plugin: 'guru.stefma.bintrayrelease'
 
 android {
     compileSdkVersion 28
     buildToolsVersion '28.0.3'
+
+    sourceSets.main {
+        jniLibs.srcDir 'jni'
+        jni.srcDirs = []
+    }
+
     defaultConfig {
         minSdkVersion 21
         targetSdkVersion 28
@@ -29,6 +36,11 @@ android {
             jniDebuggable true
         }
     }
+
+    lintOptions {
+        abortOnError false
+    }
+
     sourceSets {
         main {
             jniLibs.srcDirs = ['native-dist/lib']
@@ -47,7 +59,7 @@ android {
                     return true
                 }
             }, null)
-            outputFileName = manifestParser.getPackage() + "-${buildType.name}.aar"
+            outputFileName = "app" + "-${buildType.name}.aar"
         }
     }
 
@@ -61,4 +73,15 @@ dependencies {
     androidTestImplementation('com.android.support.test.espresso:espresso-core:2.2.2', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
+}
+
+version = "1.0.0"
+group = "io.github.elastos"
+androidArtifact {
+    artifactId = "carrier"
+}
+publish {
+    userOrg = 'zxuan'
+    desc = 'Elastos Carrier Android SDK is a Java API wrapper for the C language based Elastos Carrier Native SDK.'
+    website = 'https://github.com/elastos/Elastos.NET.Carrier.Android.SDK'
 }
