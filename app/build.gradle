@@ -59,7 +59,7 @@ android {
                     return true
                 }
             }, null)
-            outputFileName = "app" + "-${buildType.name}.aar"
+            outputFileName = manifestParser.getPackage() + "-${buildType.name}.aar"
         }
     }
 
@@ -75,7 +75,7 @@ dependencies {
     })
 }
 
-version = "5.2.4"
+version = "5.2.2"
 group = "org.elastos"
 androidArtifact {
     artifactId = "carrier"
