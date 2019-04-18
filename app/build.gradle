@@ -75,13 +75,13 @@ dependencies {
     })
 }
 
-version = "1.0.0"
-group = "io.github.elastos"
+version = "5.2.4"
+group = "org.elastos"
 androidArtifact {
     artifactId = "carrier"
 }
 publish {
-    userOrg = 'zxuan'
-    desc = 'Elastos Carrier Android SDK is a Java API wrapper for the C language based Elastos Carrier Native SDK.'
+    userOrg = 'elastos'
+    desc = 'Elastos Carrier SDK'
     website = 'https://github.com/elastos/Elastos.NET.Carrier.Android.SDK'
 }
