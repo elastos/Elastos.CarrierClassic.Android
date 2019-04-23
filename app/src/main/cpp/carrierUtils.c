@@ -59,6 +59,11 @@ int getOptionsHelper(JNIEnv* env, jobject jopts, OptionsHelper* opts)
         return 0;
     }
 
+    if(!jnodes) {
+        logE("No bootstrapNodes attached");
+        return 0;
+    }
+
     bNClazz = (*env)->GetObjectClass(env, jnodes);
     if (!bNClazz) {
         logE("Java class 'java/util/List' not found");
@@ -126,6 +131,11 @@ int getOptionsHelper(JNIEnv* env, jobject jopts, OptionsHelper* opts)
     if (!rc) {
         logE("call method Carrier::Options::getHiveBootstrapNodes error");
         return 0;
+    }
+
+    if (!jhvnodes) {
+        logE("Not bootstrapNodes attached.");
+        return 1;
     }
 
     bNClazz = (*env)->GetObjectClass(env, jhvnodes);
