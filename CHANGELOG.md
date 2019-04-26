@@ -1,3 +1,14 @@
+04/26/2019 Zhao Zhenxuan 757372373@qq.com
+Release-v5.2.2 Main changes:
+
+```markdown
+- Update project settings along with last android studio-3.3.2 and  modify outdated methods
+- Update License to be GPLv3 with regards to c-toxcore project.
+- Resolve  compilation failure  due to setting updating;
+- Bugfix for open channel of Session module;
+- Update gradle files to be possible to distribute Carrier aar package via jcenter.
+```
+
 01/28/2019 Tang Zhilong  <stiartsly@gmail.com>
 Release-v5.2.1 Main changes:
 
