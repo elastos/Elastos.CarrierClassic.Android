@@ -134,7 +134,7 @@ int getOptionsHelper(JNIEnv* env, jobject jopts, OptionsHelper* opts)
     }
 
     if (!jhvnodes) {
-        logE("Not bootstrapNodes attached.");
+        logE("Not hiveBootstrapNodes attached.");
         return 1;
     }
 
@@ -145,7 +145,7 @@ int getOptionsHelper(JNIEnv* env, jobject jopts, OptionsHelper* opts)
         return 0;
     }
 
-    rc = callIntMethod(env, bNClazz, jnodes, "size", "()I", (int *)&size);
+    rc = callIntMethod(env, bNClazz, jhvnodes, "size", "()I", (int *)&size);
     if (!rc) {
         (*env)->DeleteLocalRef(env, jhvnodes);
         return 0;
