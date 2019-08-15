@@ -122,9 +122,9 @@ public class Carrier {
 			carrier.handler.onFriendRemoved(carrier, friendId);
 		}
 
-		void onFriendMessage(Carrier carrier, String from, byte[] message) {
-			carrier.handler.onFriendMessage(carrier, from, message);
-		}
+        void onFriendMessage(Carrier carrier, String from, byte[] message, boolean isOffline) {
+            carrier.handler.onFriendMessage(carrier, from, message, isOffline);
+        }
 
 		void onFriendInviteRequest(Carrier carrier, String from, String data) {
 			carrier.handler.onFriendInviteRequest(carrier, from, data);
@@ -346,7 +346,7 @@ public class Carrier {
 	private native boolean accept_friend(String userId);
 	private native boolean remove_friend(String userId);
 
-	private native boolean send_message(String to, byte[] message);
+    private native int send_message(String to, byte[] message);
 	private native boolean friend_invite(String to, String data,
 										 FriendInviteResponseHandler handler);
 	private native boolean reply_friend_invite(String from, int status, String reason,
@@ -879,16 +879,20 @@ public class Carrier {
 	 * @param
 	 * 		message		The message content defined by application
 	 *
+     * @return
+     *                	Whether the friend is online when the message
+     *                  is sent: true, online; false, offline.
+     *
 	 * @throws
 	 * 		IllegalArgumentException
 	 * 		CarrierException
 	 */
-	public void sendFriendMessage(String to, String message) throws CarrierException {
+    public boolean sendFriendMessage(String to, String message) throws CarrierException {
 		if (to == null || to.length() == 0 ||
 				message == null || message.length() == 0 || message.length() > MAX_APP_MESSAGE_LEN)
 			throw new IllegalArgumentException();
 
-		sendFriendMessage(to, message.getBytes(UTF8));
+        return sendFriendMessage(to, message.getBytes(UTF8));
 	}
 
 	/**
@@ -903,19 +907,27 @@ public class Carrier {
 	 * @param
 	 * 		message		The message content defined by application
 	 *
+     * @return
+     *                  Whether the friend is online when the message
+     *                  is sent: true, online; false, offline.
+     *
 	 * @throws
 	 * 		IllegalArgumentException
 	 * 		CarrierException
 	 */
-	public void sendFriendMessage(String to, byte[] message) throws CarrierException {
+    public boolean sendFriendMessage(String to, byte[] message) throws CarrierException {
 		if (to == null || to.length() == 0 ||
 				message == null || message.length == 0)
 			throw new IllegalArgumentException();
 
-		if (!send_message(to, message))
-			throw CarrierException.fromErrorCode(get_error_code());
+        int ret = send_message(to, message);
 
-		Log.d(TAG, "Send " + message.length + " bytes message to friend " + to);
+        Log.d(TAG, "Send " + message.length + " bytes message to friend " + to);
+
+        if (ret < 0)
+            throw CarrierException.fromErrorCode(get_error_code());
+
+        return (ret == 0 ? true : false);
 	}
 
 	/**
