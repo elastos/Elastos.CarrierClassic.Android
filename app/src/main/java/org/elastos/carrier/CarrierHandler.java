@@ -156,11 +156,11 @@ public interface CarrierHandler {
 	 * 		from     	The id from who send the message
 	 * @param
 	 * 		message   	The message content
-     * @param
-     *      isOffline   Which method does the sender use to send this message:
-     *                  true, offline; false, online.
+	 * @param
+	 *      isOffline   Which method does the sender use to send this message:
+	 *                  true, offline; false, online.
 	 */
-    void onFriendMessage(Carrier carrier, String from, byte[] message, boolean isOffline);
+	void onFriendMessage(Carrier carrier, String from, byte[] message, boolean isOffline);
 
 	/**
 	 * The callback function to process the friend invite request.
