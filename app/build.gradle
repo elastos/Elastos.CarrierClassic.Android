@@ -11,7 +11,7 @@ android {
         minSdkVersion 21
         targetSdkVersion 28
         versionCode 1
-        versionName "5.4.0"
+        versionName "5.4.1"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         ndk {
             abiFilters 'armeabi-v7a', 'arm64-v8a', 'x86', 'x86_64'
@@ -69,7 +69,7 @@ publish {
     userOrg = 'elastos'
     groupId = 'org.elastos'
     artifactId = 'carrier'
-    publishVersion = '5.4.0'
+    publishVersion = '5.4.1'
     desc = 'Elastos Carrier SDK'
     repoName = 'Elastos.NET.Carrier.Android.SDK'
     website = 'https://github.com/elastos/Elastos.NET.Carrier.Android.SDK'
