@@ -32,75 +32,31 @@ import org.elastos.carrier.exceptions.CarrierException;
 public class Manager {
 	private static final String TAG = "FileTransMgr";
 
-	private static Manager fileTransMgr;
-
 	private Carrier carrier;
 	private boolean didCleanup;
+	private long nativeCookie = 0;  // store the native (JNI-layered) context
 
 	// jni native methods.
-	private static native boolean native_init(Carrier carrier, ManagerHandler handler);
-	private static native void native_cleanup(Carrier carrier);
-	static native FileTransfer create_filetransfer(Carrier carrier, String to,
-												   FileTransferInfo fileinfo,
-												   FileTransferHandler handler);
+	private native boolean native_init(Carrier carrier, ManagerHandler handler);
+	private native void native_cleanup(Carrier carrier);
+	private static native FileTransfer create_filetransfer(Carrier carrier, String to,
+												   		   FileTransferInfo fileinfo,
+												   		   FileTransferHandler handler);
 	private static native int get_error_code();
 
-	/**
-	 * Get a carrier file transfer manager singleton instance.
-	 *
-	 * @return
-	 * 		A carrier file transfer manager or nil on failure.
-	 */
-	public static Manager getInstance() {
-		return fileTransMgr;
-	}
+	public Manager(Carrier carrier, ManagerHandler handler) throws CarrierException {
+		if (carrier == null)
+			throw new IllegalArgumentException();
 
-	/**
-	 * Initialize carrier file transfer manager singleton instance.
-	 *
-	 * @param
-	 * 		carrier		Carrier node instance
-	 *
-	 * @throws
-	 * 		CarrierException
-	 */
-	public static void initializeInstance(Carrier carrier) throws CarrierException {
-		initializeInstance(carrier, null);
-	}
+		Log.d(TAG, "Attempt to create carrier file transfer manager instance ...");
 
-	/**
-	 * Initialize carrier file transfer manager singleton instance.
-	 *
-	 * @param
-	 * 		carrier		Carrier node instance
-	 * @param
-	 *      handler     The interface handler for carrier file transfer manager to comply with
-	 *
-	 * @throws
-	 * 		CarrierException
-	 */
-	public static void initializeInstance(Carrier carrier, ManagerHandler handler)
-			throws CarrierException {
+		if (!native_init(carrier, handler))
+			throw CarrierException.fromErrorCode(get_error_code());
 
-		if (fileTransMgr != null && fileTransMgr.carrier != carrier) {
-			fileTransMgr.cleanup();
-		}
-
-		if (fileTransMgr == null) {
-			Log.d(TAG, "Attempt to create carrier file transfer manager instance ...");
-
-			if (!native_init(carrier, handler))
-				throw CarrierException.fromErrorCode(get_error_code());
-
-			fileTransMgr = new Manager(carrier);
-
-			Log.d(TAG, "Carrier file transfer manager instance created");
-		}
-	}
-
-	private Manager(Carrier carrier) {
 		this.carrier = carrier;
 		this.didCleanup = false;
+
+		Log.d(TAG, "Carrier file transfer manager instance created");
 	}
 
 	@Override
@@ -116,7 +72,6 @@ public class Manager {
 		if (!didCleanup) {
 			native_cleanup(carrier);
 			carrier = null;
-			Manager.fileTransMgr = null;
 			didCleanup = true;
 		}
 	}

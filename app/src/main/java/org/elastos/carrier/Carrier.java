@@ -55,7 +55,7 @@ public class Carrier {
 	public static final int MAX_APP_MESSAGE_LEN = 1024;
 
 	private static final String TAG = "CarrierCore";
-	private static Carrier carrier;
+//	private static Carrier carrier;
 	private Thread carrierThread;
 	private CarrierHandler handler;
 	private long nativeCookie = 0;  // store the native (JNI-layered) carrier handler
@@ -354,8 +354,16 @@ public class Carrier {
 
 	private static native int get_error_code();
 
-	private Carrier(CarrierHandler handler) {
+	public Carrier(Options options, CarrierHandler handler) throws CarrierException {
+		Callbacks callbacks = new Callbacks();
+
+
+		if (!native_init(options, callbacks))
+			throw CarrierException.fromErrorCode(get_error_code());
+
 		this.handler = handler;
+
+		Log.i(TAG, "Carrier node instance created");
 	}
 
 	/**
@@ -424,32 +432,32 @@ public class Carrier {
 		}
 	}
 
-	/**
-	 * Initialize node singleton instance. After initializing the instance,
-	 * it's ready to start and therefore connect to carrier network.
-	 *
-	 * @param
-	 * 		options		The options to set for creating carrier node.
-	 * @param
-	 * 		handler		The interface handler for carrier node.
-	 *
-	 * @throws CarrierException carrier exception.
-	 */
-	public static void initializeInstance(Options options, CarrierHandler handler) throws CarrierException {
-		if (options == null || handler == null)
-				throw new IllegalArgumentException();
-
-		if (carrier == null) {
-			Callbacks callbacks = new Callbacks();
-			Carrier tmp = new Carrier(handler);
-
-			if (!tmp.native_init(options, callbacks))
-				throw CarrierException.fromErrorCode(get_error_code());
-
-			Log.i(TAG, "Carrier node instance created");
-			carrier = tmp;
-  		}
-	}
+//	/**
+//	 * Initialize node singleton instance. After initializing the instance,
+//	 * it's ready to start and therefore connect to carrier network.
+//	 *
+//	 * @param
+//	 * 		options		The options to set for creating carrier node.
+//	 * @param
+//	 * 		handler		The interface handler for carrier node.
+//	 *
+//	 * @throws CarrierException carrier exception.
+//	 */
+//	public static void initializeInstance(Options options, CarrierHandler handler) throws CarrierException {
+//		if (options == null || handler == null)
+//				throw new IllegalArgumentException();
+//
+//		if (carrier == null) {
+//			Callbacks callbacks = new Callbacks();
+//			Carrier tmp = new Carrier(handler);
+//
+//			if (!tmp.native_init(options, callbacks))
+//				throw CarrierException.fromErrorCode(get_error_code());
+//
+//			Log.i(TAG, "Carrier node instance created");
+//			carrier = tmp;
+//  		}
+//	}
 
 	@Override
 	protected void finalize() throws Throwable {
@@ -463,9 +471,9 @@ public class Carrier {
 	 * @return
 	 * 		A carrier node instance or nil on failure.
 	 */
-	public static Carrier getInstance() {
-		return carrier;
-	}
+//	public static Carrier getInstance() {
+//		return carrier;
+//	}
 
 	/**
 	 * Start carrier node asynchronously to connect to carrier network. If the connection
@@ -480,7 +488,7 @@ public class Carrier {
 				@Override
 				public void run() {
 					Log.i(TAG, "Native carrier node started");
-					if (!carrier.native_run(iterateInterval)) {
+					if (!native_run(iterateInterval)) {
 						Log.e(TAG, "Native carrier node started error(" + get_error_code() + ")");
 						return;
 					}
@@ -503,7 +511,7 @@ public class Carrier {
 			Log.i(TAG, "Killing Carrier node instance ...");
 			native_kill();
 			didKill = true;
-			carrier = null;
+//			carrier = null;
 
 			if (carrierThread != null) {
 				try {

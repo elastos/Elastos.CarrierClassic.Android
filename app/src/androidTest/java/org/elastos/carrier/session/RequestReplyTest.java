@@ -430,16 +430,14 @@ public class RequestReplyTest {
 
 		TestOptions options = new TestOptions(context.getAppPath());
 		try {
-			Carrier.initializeInstance(options, handler);
-			carrier = Carrier.getInstance();
+			carrier = new Carrier(options, handler);
 			carrier.start(0);
 			synchronized (carrier) {
 				carrier.wait();
 			}
 			Log.i(TAG, "Carrier node is ready now");
 
-			Manager.initializeInstance(carrier, sessionHandler);
-			sessionManager = Manager.getInstance();
+			sessionManager = new Manager(carrier, sessionHandler);
 			assertNotNull(sessionManager);
 		}
 		catch (CarrierException | InterruptedException e) {

@@ -32,81 +32,29 @@ import org.elastos.carrier.exceptions.CarrierException;
 public class Manager {
 	private static final String TAG = "CarrierManager";
 
-	private static Manager sessionMgr;
-
 	private Carrier carrier;
 	private boolean didCleanup;
+	private long nativeCookie = 0;  // store the native (JNI-layered) context
 
 	// jni native methods.
-	private static native boolean native_init(Carrier carrier, ManagerHandler handler);
-	private static native void native_cleanup(Carrier carrier);
-	private native Session create_session(Carrier carrier, String to);
+	private native boolean native_init(Carrier carrier, ManagerHandler handler);
+	private native void native_cleanup(Carrier carrier);
+	private static native Session create_session(Carrier carrier, String to);
 	private static native int get_error_code();
 
-	/**
-	 * Get a carrier session manager singleton instance.
-	 *
-	 * @return
-	 * 		A carrier session manager or nil on failure.
-	 */
-	public static Manager getInstance() {
-		return sessionMgr;
-	}
+	public Manager(Carrier carrier, ManagerHandler handler) throws CarrierException {
+		if (carrier == null)
+			throw new IllegalArgumentException();
 
-	/**
-	 * Get a carrier session manager instance.
-	 *
-	 * This function is convinience way to get instance without interest to session request
-	 * from friends.
-	 *
-	 * @param
-	 * 		carrier		Carrier node instance
-	 *
-	 * @return
-	 * 		A carrier session manager
-	 *
-	 * @throws
-	 * 		CarrierException
-	 */
-	public static void initializeInstance(Carrier carrier) throws CarrierException {
-		initializeInstance(carrier, null);
-	}
+		Log.d(TAG, "Attempt to create carrier session manager instance ...");
 
-	/**
-	 * Initialize session manager singleton instance.
-	 *
-	 * @param
-	 * 		carrier		Carrier node instance
-	 * @param
-	 *      handler     The interface handler for carrier session manager to comply with
-	 *
-	 * @throws
-	 * 		CarrierException
-	 */
-	public static void initializeInstance(Carrier carrier, ManagerHandler handler)
-			throws CarrierException {
-		if (sessionMgr != null && sessionMgr.carrier != carrier) {
-			sessionMgr.cleanup();
-		}
+		if (!native_init(carrier, handler))
+			throw CarrierException.fromErrorCode(get_error_code());
 
-		if (sessionMgr == null) {
-			if (carrier == null)
-				throw new IllegalArgumentException();
-
-			Log.d(TAG, "Attempt to create carrier session manager instance ...");
-
-			if (!native_init(carrier, handler))
-				throw CarrierException.fromErrorCode(get_error_code());
-
-			sessionMgr = new Manager(carrier);
-
-			Log.d(TAG, "Carrier session manager instance created");
-		}
-	}
-
-	private Manager(Carrier carrier) {
 		this.carrier = carrier;
 		this.didCleanup = false;
+
+		Log.d(TAG, "Carrier session manager instance created");
 	}
 
 	@Override
@@ -122,7 +70,6 @@ public class Manager {
 		if (!didCleanup) {
 			native_cleanup(carrier);
 			carrier = null;
-			Manager.sessionMgr = null;
 			didCleanup = true;
 		}
 	}
