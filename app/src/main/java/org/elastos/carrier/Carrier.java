@@ -352,6 +352,8 @@ public class Carrier {
 	private native boolean reply_friend_invite(String from, int status, String reason,
 											   String data);
 
+	private native TurnServer get_turn_server();
+
 	private static native int get_error_code();
 
 	private Carrier(CarrierHandler handler) {
@@ -985,6 +987,27 @@ public class Carrier {
 		else
 			Log.d(TAG, String.format("Refused friend invite to %s with status %d and " +
 					"reason %s", to, status, reason));
+	}
+
+
+	/**
+	 * Get turn server
+	 *
+	 * This function will return a turn server address with login credential information.
+	 *
+	 *
+	 * @throws IllegalArgumentException illegal exception.
+	 * @throws CarrierException  carrier exception.
+	 */
+	public TurnServer getTurnServer()
+			throws CarrierException {
+
+		TurnServer turnServer = get_turn_server();
+		if (turnServer == null)
+			throw CarrierException.fromErrorCode(get_error_code());
+
+		Log.d(TAG, "Current turn server: " + turnServer);
+		return turnServer;
 	}
 
 	/**

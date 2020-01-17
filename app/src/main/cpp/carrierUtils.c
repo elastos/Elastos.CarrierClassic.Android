@@ -24,6 +24,7 @@
 #include <stdlib.h>
 #include <assert.h>
 #include <ela_carrier.h>
+#include <ela_turnserver.h>
 #include "utilsExt.h"
 #include "log.h"
 #include "carrierUtils.h"
@@ -498,3 +499,46 @@ int newJavaGroupPeerInfo(JNIEnv* env, const ElaGroupPeer* peer, jobject* jpeerIn
     *jpeerInfo = jobj;
     return 1;
 }
+
+int setJavaTurnServer(JNIEnv *env, jclass clazz, jobject jinfo, const ElaTurnServer *turnServer)
+{
+    return (setString(env, clazz, jinfo, "setServer", turnServer->server) &&
+            setIntField(env, jinfo, "port", turnServer->port) &&
+            setString(env, clazz, jinfo, "setUsername", turnServer->username) &&
+            setString(env, clazz, jinfo, "setPassword", turnServer->password) &&
+            setString(env, clazz, jinfo, "setRealm", turnServer->realm));
+}
+
+int newJavaTurnServer(JNIEnv* env, const ElaTurnServer* turnServer, jobject* jturnserver)
+{
+    jclass clazz;
+    jmethodID contor;
+    jobject jobj;
+
+    clazz = (*env)->FindClass(env, _T("TurnServer"));
+    if (!clazz) {
+        logE("Java class 'TurnServer' not found");
+        return 0;
+    }
+
+    contor = (*env)->GetMethodID(env, clazz, "<init>", "()V");
+    if (!contor) {
+        logE("Constructor TurnServer() not found");
+        return 0;
+    }
+    jobj = (*env)->NewObject(env, clazz, contor);
+    if (!jobj) {
+        logE("New class TurnServer object error");
+        return 0;
+    }
+
+    if (!setJavaTurnServer(env, clazz, jobj, turnServer)) {
+        logE("Set TurnServer object's fields error");
+        (*env)->DeleteLocalRef(env, jobj);
+        return 0;
+    }
+
+    *jturnserver = jobj;
+    return 1;
+}
+

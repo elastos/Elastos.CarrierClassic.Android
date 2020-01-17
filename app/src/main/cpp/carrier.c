@@ -27,6 +27,7 @@
 #include <stdlib.h>
 #include <arpa/inet.h>
 #include <ela_carrier.h>
+#include <ela_turnserver.h>
 #include "log.h"
 #include "utils.h"
 #include "carrierUtils.h"
@@ -712,6 +713,42 @@ jboolean replyFriendInvite(JNIEnv* env, jobject thiz, jstring jto, jint jstatus,
     return JNI_TRUE;
 }
 
+typedef struct TurnServer {
+    jstring  server;
+    jint port;
+    jstring username;
+    jstring password;
+    jstring realm;
+} TurnServer;
+
+
+static
+jobject get_turn_server(JNIEnv* env, jobject thiz)
+{
+
+    ElaTurnServer ts;
+    jobject jturnserver = NULL;
+    int rc;
+
+    rc  =  ela_get_turn_server(getCarrier(env, thiz), &ts);
+
+    if (rc < 0) {
+        logE("Call ela_get_turn_server API error");
+        setErrorCode(ela_get_error());
+        return NULL;
+    }
+
+    if (!newJavaTurnServer(env, &ts, &jturnserver)) {
+        logE("Construct java TurnServer object error");
+        setErrorCode(ELA_GENERAL_ERROR(ELAERR_LANGUAGE_BINDING));
+        return NULL;
+    }
+    return jturnserver;
+
+}
+
+
+
 static
 jint getErrorCode(JNIEnv* env, jclass clazz)
 {
@@ -748,6 +785,7 @@ static JNINativeMethod gMethods[] = {
                                                                    (void*)inviteFriend         },
         {"reply_friend_invite","("_J("String;I")_J("String;")_J("String;)Z"),\
                                                                    (void*)replyFriendInvite    },
+        {"get_turn_server",    "()"_W("TurnServer;"),              (void *) get_turn_server    },
         {"get_error_code",     "()I",                              (void*)getErrorCode         }
 };
 
