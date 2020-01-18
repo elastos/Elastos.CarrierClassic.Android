@@ -25,6 +25,7 @@
 
 #include <jni.h>
 #include "ela_carrier.h"
+#include "ela_turnserver.h"
 
 typedef struct BootstrapHelper {
     char *ipv4;
