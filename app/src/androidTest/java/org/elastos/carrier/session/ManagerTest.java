@@ -44,7 +44,7 @@ public class ManagerTest {
 	@Test
 	public void testGetInstanceWithoutRequestHandler() {
 		try {
-			Manager sessionMgr = new Manager(carrier, null);
+			Manager sessionMgr = Manager.createInstance(carrier);
 			assertNotNull(sessionMgr);
 			sessionMgr.cleanup();
 		}
@@ -57,7 +57,7 @@ public class ManagerTest {
 	@Test
 	public void testGetInstanceWithRequestHandler() {
 		try {
-			Manager sessionMgr = new Manager(carrier, new ManagerHandler() {
+			Manager sessionMgr = Manager.createInstance(carrier, new ManagerHandler() {
 				@Override
 				public void onSessionRequest(Carrier carrier, String from, String sdp) {
 					Log.i(TAG, "onSessionRequest");
@@ -76,7 +76,7 @@ public class ManagerTest {
 	public static void setUp() {
 		try {
 			TestOptions options = new TestOptions(context.getAppPath());
-			carrier = new Carrier(options, handler);
+			carrier = Carrier.createInstance(options, handler);
 			carrier.start(0);
 			synchronized (carrier) {
 				carrier.wait();

@@ -44,19 +44,56 @@ public class Manager {
 												   		   FileTransferHandler handler);
 	private static native int get_error_code();
 
-	public Manager(Carrier carrier, ManagerHandler handler) throws CarrierException {
+	/**
+	 * Create a carrier file transfer manager instance.
+	 *
+	 * @param
+	 * 		carrier		Carrier node instance
+	 *
+	 * @return
+	 *      Manager instance
+	 *
+	 * @throws
+	 * 		CarrierException
+	 */
+	public static Manager createInstance(Carrier carrier) throws CarrierException {
+		return createInstance(carrier, null);
+	}
+
+	/**
+	 * Create a carrier file transfer manager instance.
+	 *
+	 * @param
+	 * 		carrier		Carrier node instance
+	 * @param
+	 *      handler     The interface handler for carrier file transfer manager to comply with
+	 *
+	 * @return
+	 *      Manager instance
+	 *
+	 * @throws
+	 * 		CarrierException
+	 */
+	public static Manager createInstance(Carrier carrier, ManagerHandler handler)
+		throws CarrierException {
 		if (carrier == null)
 			throw new IllegalArgumentException();
 
 		Log.d(TAG, "Attempt to create carrier file transfer manager instance ...");
 
-		if (!native_init(carrier, handler))
+		Manager tmp = new Manager(carrier);
+
+		if (!tmp.native_init(carrier, handler))
 			throw CarrierException.fromErrorCode(get_error_code());
 
+		Log.d(TAG, "Carrier file transfer manager instance created");
+
+		return tmp;
+	}
+
+	private Manager(Carrier carrier) {
 		this.carrier = carrier;
 		this.didCleanup = false;
-
-		Log.d(TAG, "Carrier file transfer manager instance created");
 	}
 
 	@Override

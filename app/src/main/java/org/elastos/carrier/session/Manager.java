@@ -42,19 +42,59 @@ public class Manager {
 	private static native Session create_session(Carrier carrier, String to);
 	private static native int get_error_code();
 
-	public Manager(Carrier carrier, ManagerHandler handler) throws CarrierException {
+	/**
+	 * Create a carrier session manager instance.
+	 *
+	 * This function is convenient way to get instance without interest to session request
+	 * from friends.
+	 *
+	 * @param
+	 * 		carrier		Carrier node instance
+	 *
+	 * @return
+	 * 		A carrier session manager
+	 *
+	 * @throws
+	 * 		CarrierException
+	 */
+	public static Manager createInstance(Carrier carrier) throws CarrierException {
+		return createInstance(carrier, null);
+	}
+
+	/**
+	 * Create a session manager instance.
+	 *
+	 * @param
+	 * 		carrier		Carrier node instance
+	 * @param
+	 *      handler     The interface handler for carrier session manager to comply with
+	 *
+	 * @return
+	 * 		A carrier session manager
+	 *
+	 * @throws
+	 * 		CarrierException
+	 */
+	public static Manager createInstance(Carrier carrier, ManagerHandler handler)
+			throws CarrierException {
 		if (carrier == null)
 			throw new IllegalArgumentException();
 
 		Log.d(TAG, "Attempt to create carrier session manager instance ...");
 
-		if (!native_init(carrier, handler))
+		Manager tmp = new Manager(carrier);
+
+		if (!tmp.native_init(carrier, handler))
 			throw CarrierException.fromErrorCode(get_error_code());
 
+		Log.d(TAG, "Carrier session manager instance created");
+
+		return tmp;
+	}
+
+	private Manager(Carrier carrier) {
 		this.carrier = carrier;
 		this.didCleanup = false;
-
-		Log.d(TAG, "Carrier session manager instance created");
 	}
 
 	@Override

@@ -38,7 +38,7 @@ public class GetInstanceTest extends AbstractCarrierHandler {
 		TestHandler handler = new TestHandler();
 
 		try {
-			Carrier carrier = new Carrier(options, handler);
+			Carrier carrier = Carrier.createInstance(options, handler);
 			assertNotNull(carrier);
 
 			carrier.start(0);

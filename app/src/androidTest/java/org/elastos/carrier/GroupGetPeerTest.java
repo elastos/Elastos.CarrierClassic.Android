@@ -255,7 +255,7 @@ public class GroupGetPeerTest {
 
 		TestOptions options = new TestOptions(context.getAppPath());
 		try {
-			carrier = new Carrier(options, handler);
+			carrier = Carrier.createInstance(options, handler);
 			carrier.start(0);
 			synchronized (carrier) {
 				carrier.wait();
