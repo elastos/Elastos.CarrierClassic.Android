@@ -105,6 +105,9 @@ jboolean carrierRun(JNIEnv* env, jobject thiz, jint jinterval)
         return JNI_FALSE;
     }
     logI("Native carrier node exited");
+
+    handlerCtxtCleanup(hc, env);
+
     return JNI_TRUE;
 }
 
@@ -115,7 +118,6 @@ void carrierKill(JNIEnv* env, jobject thiz)
     assert(hc->nativeCarrier);
 
     ela_kill(hc->nativeCarrier);
-    handlerCtxtCleanup(hc, env);
 
     setLongField(env, thiz, "nativeCookie", 0);
 }
