@@ -54,6 +54,11 @@ public class Group {
 
 	private static native int get_error_code();
 
+	Group(Carrier carrier, String groupId) {
+		this.carrier = carrier;
+		this.groupId = groupId;
+	}
+
 	Group(Carrier carrier) throws CarrierException {
 		groupId = new_group(carrier);
 		if (groupId == null)
