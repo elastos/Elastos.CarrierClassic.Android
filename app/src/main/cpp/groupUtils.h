@@ -20,4 +20,11 @@
  * SOFTWARE.
  */
 
+#ifndef __GROUP_UTILS_H__
+#define __GROUP_UTILS_H__
+
+#include <jni.h>
+
 int newJavaGroup(JNIEnv *env, jobject jcarrier, jstring id, jobject* jgroup);
+
+#endif //__GROUP_UTILS_H__
