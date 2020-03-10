@@ -3,7 +3,17 @@ package org.elastos.carrier;
 import org.elastos.carrier.exceptions.CarrierException;
 
 public abstract class CarrierExtension {
+    private static final String TAG = "CarrierExtension";
     private Carrier carrier;
+    private long nativeCookie = 0;
+
+    private native boolean native_init();
+    private native boolean invite_friend(String to, String data,
+                                         FriendInviteResponseHandler handler);
+    private native boolean reply_friend(String to, int status, String reason, String data);
+    private native TurnServerInfo get_turn_server();
+    private native void native_cleanup();
+    private static native int get_error_code();
 
     static class TurnServerInfo {
         private String server;
@@ -12,8 +22,13 @@ public abstract class CarrierExtension {
         private String realm;
         private int port;
 
-        TurnServerInfo() {
-            // TODO:
+        TurnServerInfo(String server, String username, String password, String realm,
+                       int port) {
+            this.server = server;
+            this.username = username;
+            this.password = password;
+            this.realm = realm;
+            this.port = port;
         }
 
         public String getServer() {
@@ -40,26 +55,82 @@ public abstract class CarrierExtension {
 
     abstract protected void onFriendInvite(Carrier carrier, String from, String data);
 
-    protected CarrierExtension(Carrier carrier) {
+    protected CarrierExtension(Carrier carrier) throws CarrierException {
+        if (carrier == null)
+            throw new IllegalArgumentException();
+
         this.carrier = carrier;
+
+        Log.i(TAG, "CarrierExtension instance created");
     }
 
-    protected TurnServerInfo getTurnServerInfo() {
-        // TODO:
-        return new TurnServerInfo();
+    protected TurnServerInfo getTurnServerInfo() throws CarrierException {
+        TurnServerInfo sinfo;
+
+        if (nativeCookie == 0)
+            throw new IllegalStateException();
+
+        sinfo = get_turn_server();
+        if (sinfo == null)
+            throw CarrierException.fromErrorCode(get_error_code());
+
+        return sinfo;
     }
 
     protected void inviteFriend(String to, String data, FriendInviteResponseHandler handler)
             throws CarrierException {
-        // TODO
+        if (nativeCookie == 0)
+            throw new IllegalStateException();
+
+        if (to == null || to.length() == 0 ||
+                data == null || data.length() == 0 || handler == null)
+            throw new IllegalArgumentException();
+
+        Log.d(TAG, "Inviting friend " + to + "with greet data " + data);
+
+        if (!invite_friend(to, data, handler))
+            throw CarrierException.fromErrorCode(get_error_code());
+
+        Log.d(TAG, "Send friend invite request to " + to);
     }
 
     protected void replyFriendInvite(String to, int status, String reason, String data)
             throws CarrierException {
-        // TODO:
+        if (nativeCookie == 0)
+            throw new IllegalStateException();
+
+        if (to == null || to.length() == 0 || (status != 0 && reason == null))
+            throw new IllegalArgumentException();
+
+        if (status == 0)
+            Log.d(TAG, String.format("Attempt to confirm friend invite to %s with data [%s]",
+                    to, data));
+        else
+            Log.d(TAG, String.format("Attempt to refuse friend invite to %s with status %d," +
+                    "and reason %s", to, status, reason));
+
+        if (!reply_friend(to, status, reason, data))
+            throw CarrierException.fromErrorCode(get_error_code());
+
+        if (status == 0)
+            Log.d(TAG, String.format("Confirmed friend invite to %s with data [%s]", to, data));
+        else
+            Log.d(TAG, String.format("Refused friend invite to %s with status %d and " +
+                    "reason %s", to, status, reason));
     }
 
-    protected void registerExtension() {
-        // TODO:
+    protected void registerExtension() throws CarrierException {
+        if (nativeCookie != 0)
+            return;
+
+        if (!native_init())
+            throw CarrierException.fromErrorCode(get_error_code());
+    }
+
+    @Override
+    protected void finalize() throws Throwable {
+        if (nativeCookie != 0)
+            native_cleanup();
+        super.finalize();
     }
 }
