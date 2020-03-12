@@ -7,12 +7,12 @@ public abstract class CarrierExtension {
     private Carrier carrier;
     private long nativeCookie = 0;
 
-    private native boolean native_init();
-    private native boolean invite_friend(String to, String data,
+    private native boolean native_init(Carrier carrier);
+    private native boolean invite_friend(Carrier carrier, String to, String data,
                                          FriendInviteResponseHandler handler);
-    private native boolean reply_friend(String to, int status, String reason, String data);
-    private native TurnServerInfo get_turn_server();
-    private native void native_cleanup();
+    private native boolean reply_friend(Carrier carrier, String to, int status, String reason, String data);
+    private native TurnServerInfo get_turn_server(Carrier carrier);
+    private native void native_cleanup(Carrier carrier);
     private static native int get_error_code();
 
     static class TurnServerInfo {
@@ -70,7 +70,7 @@ public abstract class CarrierExtension {
         if (nativeCookie == 0)
             throw new IllegalStateException();
 
-        sinfo = get_turn_server();
+        sinfo = get_turn_server(carrier);
         if (sinfo == null)
             throw CarrierException.fromErrorCode(get_error_code());
 
@@ -88,7 +88,7 @@ public abstract class CarrierExtension {
 
         Log.d(TAG, "Inviting friend " + to + "with greet data " + data);
 
-        if (!invite_friend(to, data, handler))
+        if (!invite_friend(carrier, to, data, handler))
             throw CarrierException.fromErrorCode(get_error_code());
 
         Log.d(TAG, "Send friend invite request to " + to);
@@ -109,7 +109,7 @@ public abstract class CarrierExtension {
             Log.d(TAG, String.format("Attempt to refuse friend invite to %s with status %d," +
                     "and reason %s", to, status, reason));
 
-        if (!reply_friend(to, status, reason, data))
+        if (!reply_friend(carrier, to, status, reason, data))
             throw CarrierException.fromErrorCode(get_error_code());
 
         if (status == 0)
@@ -123,14 +123,14 @@ public abstract class CarrierExtension {
         if (nativeCookie != 0)
             return;
 
-        if (!native_init())
+        if (!native_init(carrier))
             throw CarrierException.fromErrorCode(get_error_code());
     }
 
     @Override
     protected void finalize() throws Throwable {
         if (nativeCookie != 0)
-            native_cleanup();
+            native_cleanup(carrier);
         super.finalize();
     }
 }
