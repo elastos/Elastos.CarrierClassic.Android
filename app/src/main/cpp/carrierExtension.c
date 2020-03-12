@@ -124,17 +124,7 @@ finally:
 }
 
 static
-ElaCarrier *getNativeCarrier(JNIEnv* env, jobject jext)
-{
-    jobject jcarrier;
-
-    getObjectField(env, jext, "carrier", _W("Carrier;"), &jcarrier);
-
-    return getCarrier(env, jcarrier);
-}
-
-static
-jboolean carrierExtensionInit(JNIEnv* env, jobject thiz)
+jboolean carrierExtensionInit(JNIEnv* env, jobject thiz, jobject jcarrier)
 {
     jobject gjext;
     int rc;
@@ -145,7 +135,7 @@ jboolean carrierExtensionInit(JNIEnv* env, jobject thiz)
         return JNI_FALSE;
     }
 
-    rc = extension_init(getNativeCarrier(env, thiz), inviteCallback, gjext);
+    rc = extension_init(getCarrier(env, jcarrier), inviteCallback, gjext);
     if (rc < 0) {
         (*env)->DeleteGlobalRef(env, gjext);
         setErrorCode(ela_get_error());
@@ -208,7 +198,7 @@ finally:
 }
 
 static
-jboolean inviteFriend(JNIEnv* env, jobject thiz, jstring jto,
+jboolean inviteFriend(JNIEnv* env, jobject thiz, jobject jcarrier, jstring jto,
                       jstring jdata, jobject jhandler)
 {
     jobject gjhandler;
@@ -237,7 +227,7 @@ jboolean inviteFriend(JNIEnv* env, jobject thiz, jstring jto,
         return JNI_FALSE;
     }
 
-    rc =  extension_invite_friend(getNativeCarrier(env, thiz), to, data, strlen(data) + 1,
+    rc =  extension_invite_friend(getCarrier(env, jcarrier), to, data, strlen(data) + 1,
                                   inviteReplyCallback, gjhandler);
     (*env)->ReleaseStringUTFChars(env, jdata, data);
     (*env)->ReleaseStringUTFChars(env, jto, to);
@@ -252,8 +242,8 @@ jboolean inviteFriend(JNIEnv* env, jobject thiz, jstring jto,
 }
 
 static
-jboolean replyFriend(JNIEnv* env, jobject thiz, jstring jto, jint jstatus,
-                     jstring jreason, jstring jdata)
+jboolean replyFriend(JNIEnv* env, jobject thiz, jobject jcarrier, jstring jto,
+                     jint jstatus, jstring jreason, jstring jdata)
 {
     const char *to = NULL;
     const char *reason = NULL;
@@ -282,7 +272,7 @@ jboolean replyFriend(JNIEnv* env, jobject thiz, jstring jto, jint jstatus,
         return JNI_FALSE;
     }
 
-    rc  = extension_reply_friend_invite(getNativeCarrier(env, thiz), to, jstatus, reason,
+    rc  = extension_reply_friend_invite(getCarrier(env, jcarrier), to, jstatus, reason,
                                         data, data ? strlen(data) + 1 : 0);
 
     (*env)->ReleaseStringUTFChars(env, jto, to);
@@ -298,7 +288,7 @@ jboolean replyFriend(JNIEnv* env, jobject thiz, jstring jto, jint jstatus,
 }
 
 static
-jobject getTurnServer(JNIEnv* env, jobject thiz)
+jobject getTurnServer(JNIEnv* env, jobject thiz, jobject jcarrier)
 {
     ElaTurnServer server;
     jobject jsinfo = NULL;
@@ -308,7 +298,7 @@ jobject getTurnServer(JNIEnv* env, jobject thiz)
     jstring jrealm = NULL;
     int rc;
 
-    rc = ela_get_turn_server(getNativeCarrier(env, thiz), &server);
+    rc = ela_get_turn_server(getCarrier(env, jcarrier), &server);
     if (rc < 0) {
         logE("CarrierExtension::carrier field not found");
         setErrorCode(ela_get_error());
@@ -352,9 +342,9 @@ finally:
 }
 
 static
-void carrierExtensionCleanup(JNIEnv* env, jobject thiz)
+void carrierExtensionCleanup(JNIEnv* env, jobject thiz, jobject jcarrier)
 {
-    extension_cleanup(getNativeCarrier(env, thiz));
+    extension_cleanup(getCarrier(env, jcarrier));
     (*env)->DeleteGlobalRef(env, getGlobalExt(env, thiz));
 }
 
@@ -369,14 +359,14 @@ jint getErrorCode(JNIEnv* env, jclass clazz)
 
 static const char* gClassName = "org/elastos/carrier/CarrierExtension";
 static JNINativeMethod gMethods[] = {
-    {"native_init",        "()Z",                              (void *)carrierExtensionInit },
-    {"invite_friend",      "("_J("String;")_J("String;")_W("FriendInviteResponseHandler;)Z"),
+    {"native_init",        "("_W("Carrier;)Z"),                (void *)carrierExtensionInit },
+    {"invite_friend",      "("_W("Carrier;")_J("String;")_J("String;")_W("FriendInviteResponseHandler;)Z"),
                                                                (void *)inviteFriend         },
-    {"reply_friend",       "("_J("String;I")_J("String;")_J("String;)Z"),
+    {"reply_friend",       "("_W("Carrier;")_J("String;I")_J("String;")_J("String;)Z"),
                                                                (void *)replyFriend          },
-    {"get_turn_server",    "()"_W("CarrierExtension$TurnServerInfo;"),
+    {"get_turn_server",    "("_W("Carrier;)")_W("CarrierExtension$TurnServerInfo;"),
                                                                (void *)getTurnServer        },
-    {"native_cleanup",     "()V",                              (void *)carrierExtensionCleanup },
+    {"native_cleanup",     "("_W("Carrier;)V"),                (void *)carrierExtensionCleanup },
     {"get_error_code",     "()I",                              (void *)getErrorCode         }
 };
 
