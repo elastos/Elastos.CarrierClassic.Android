@@ -74,6 +74,10 @@ public abstract class CarrierExtension {
         if (sinfo == null)
             throw CarrierException.fromErrorCode(get_error_code());
 
+        Log.d(TAG, String.format("Get TURN server info {\n  server: %s\n  username: %s\n  password: %s\n" +
+                        "  realm: %s\n  port: %d\n}",
+              sinfo.getServer(), sinfo.getUsername(), sinfo.getPassword(), sinfo.getRealm(), sinfo.getPort()));
+
         return sinfo;
     }
 
