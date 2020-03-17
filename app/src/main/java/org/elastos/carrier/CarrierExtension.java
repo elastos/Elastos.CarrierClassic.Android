@@ -15,7 +15,7 @@ public abstract class CarrierExtension {
     private native void native_cleanup(Carrier carrier);
     private static native int get_error_code();
 
-    static class TurnServerInfo {
+    protected static class TurnServerInfo {
         private String server;
         private String username;
         private String password;
@@ -50,12 +50,11 @@ public abstract class CarrierExtension {
         public String getRealm() {
             return realm;
         }
-
     }
 
     abstract protected void onFriendInvite(Carrier carrier, String from, String data);
 
-    protected CarrierExtension(Carrier carrier) throws CarrierException {
+    protected CarrierExtension(Carrier carrier) {
         if (carrier == null)
             throw new IllegalArgumentException();
 
