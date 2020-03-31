@@ -1,4 +1,35 @@
+03/31/2020 Wang Ran <snackwang.petter@gmail.com>
+
+Release-v5.5.0 Main changes:
+
+	
+	Interface changes：
+	Carrier:
+	- remove Carrier.getInstance();
+	- remove Carrier.initializeInstance(options, handler);
+	- Create the Carrier instance and return it，using Carrier.createInstance(options, handler); 
+	Group:
+	- Replace carrier.newGroup(groupHandler) with carrier.newGroup();
+	Session/FileTransfer Manager:
+	- remove Manager.initializeInstance(carrier) and Manager.initializeInstance(carrier, handler);
+	- remove Manager.getInstance();
+	- Create the Manager instance and return it，using Manager.createInstance(carrier) or Manager.createInstance(carrier, handler);
+
+	Other changes:
+	- Be able to create multiple carrier instances now, which required by Trinity (or elastOS). General application over Carrier network should still keep using singleton carrier instance under application context.
+	- All groups in Carrier context updated to share one GroupHandler, and become part of CarrierHandler .
+
+	Native carrier lib changes:
+	- Correct default port value for IPFS node service.
+	- Fix cmake typo.
+	- Update cygwin.
+	- Allow ela_get_groups() to be called in the whole lifecycle of carrier due to introduction of persistent group.
+
+
+
+
 01/28/2019 Tang Zhilong  <stiartsly@gmail.com>
+
 Release-v5.2.1 Main changes:
 
 	- Support carrier group without central administration, and group peers should be required connected to carrier network;
@@ -10,4 +41,3 @@ Release-v5.2.1 Main changes:
 	- Optimization and bugfixes to carrier/session/stream module;
 	- Bugfix for low chance of succeeding to esablish session connectivity when both pees' network topology is behind symmetric NAT.
 	- Integrate CI procedure.
-
