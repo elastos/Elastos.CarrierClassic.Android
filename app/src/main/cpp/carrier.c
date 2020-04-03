@@ -652,6 +652,39 @@ jint sendMessage(JNIEnv* env, jobject thiz, jstring jto, jbyteArray jmsg)
 }
 
 static
+jint sendLargeMessage(JNIEnv* env, jobject thiz, jstring jto, jbyteArray jmsg)
+{
+    const char *to;
+    jbyte *msg;
+    jsize len;
+    int rc;
+
+    assert(jto);
+    assert(jmsg);
+
+    to = (*env)->GetStringUTFChars(env, jto, NULL);
+    if (!to) {
+        setErrorCode(ELA_GENERAL_ERROR(ELAERR_OUT_OF_MEMORY));
+        return -1;
+    }
+
+    msg = (*env)->GetByteArrayElements(env, jmsg, NULL);
+    len = (*env)->GetArrayLength(env, jmsg);
+    assert(msg);
+    assert(len);
+
+    rc = ela_send_friend_large_message(getCarrier(env, thiz), to, msg, (size_t)len);
+    (*env)->ReleaseStringUTFChars(env, jto, to);
+
+    if (rc < 0) {
+        setErrorCode(ela_get_error());
+        return -1;
+    }
+
+    return 0;
+}
+
+static
 void friendInviteRspCallback(ElaCarrier* carrier, const char* from, const char *bundle, int status,
                               const char* reason, const void* data, size_t length, void* context)
 {
@@ -844,6 +877,7 @@ static JNINativeMethod gMethods[] = {
         {"accept_friend",      "("_J("String;)Z"),                 (void *) acceptFriend       },
         {"remove_friend",      "("_J("String;)Z"),                 (void *) removeFriend       },
         {"send_message",       "("_J("String;[B)I"),               (void *) sendMessage        },
+        {"send_large_message", "("_J("String;[B)I"),               (void *) sendLargeMessage   },
         {"friend_invite",      "("_J("String;")_J("String;")_W("FriendInviteResponseHandler;)Z"), \
                                                                    (void*)inviteFriend         },
         {"reply_friend_invite","("_J("String;I")_J("String;")_J("String;)Z"),\

@@ -164,6 +164,18 @@ public interface CarrierHandler extends GroupHandler {
 	void onFriendMessage(Carrier carrier, String from, byte[] message, boolean isOffline);
 
 	/**
+	 * The callback function to process the friend large message.
+	 *
+	 * @param
+	 * 		carrier   	Carrier node instance
+	 * @param
+	 * 		from     	The id from who send the message
+	 * @param
+	 * 		message   	The message content
+	 */
+	void onFriendLargeMessage(Carrier carrier, String from, byte[] message);
+
+	/**
 	 * The callback function to process the friend invite request.
 	 *
 	 * @param

@@ -173,6 +173,19 @@ public abstract class AbstractCarrierHandler extends AbstractGroupHandler implem
 	public void onFriendMessage(Carrier carrier, String from, byte[] message, boolean isOffline) {}
 
 	/**
+	 * The callback function to process the friend large message.
+	 *
+	 * @param
+	 * 		carrier   	Carrier node instance
+	 * @param
+	 * 		from     	The id(userid@nodeid) from who send the message
+	 * @param
+	 * 		message   	The message content
+	 */
+	@Override
+	public void onFriendLargeMessage(Carrier carrier, String from, byte[] message) {}
+
+	/**
 	 * The callback function to process the friend invite request.
 	 *
 	 * @param

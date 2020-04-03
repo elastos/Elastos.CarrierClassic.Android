@@ -17,6 +17,8 @@ import org.junit.rules.Timeout;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
+import java.util.Arrays;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertFalse;
@@ -74,6 +76,16 @@ public class FriendMessageTest {
 
 		@Override
 		public void onFriendMessage(Carrier carrier, String from, byte[] message, boolean isOffline) {
+			TestContext.Bundle bundle = mContext.getExtra();
+			bundle.setFrom(from);
+			bundle.setExtraData(new String(message));
+
+			Log.d(TAG, String.format("Friend message %s ", from));
+			commonSyncher.wakeup();
+		}
+
+		@Override
+		public void onFriendLargeMessage(Carrier carrier, String from, byte[] message) {
 			TestContext.Bundle bundle = mContext.getExtra();
 			bundle.setFrom(from);
 			bundle.setExtraData(new String(message));
@@ -154,6 +166,78 @@ public class FriendMessageTest {
 		catch (CarrierException e) {
 			e.printStackTrace();
 			assertEquals(0x81000001, e.getErrorCode());
+		}
+	}
+
+	@Test
+	public void testSendLargeMessageToFriend() {
+		friendConnSyncher.reset();
+		commonSyncher.reset();
+
+		try {
+			assertTrue(TestHelper.addFriendAnyway(carrier, robot, commonSyncher, friendConnSyncher, context));
+			assertTrue(carrier.isFriend(robot.getNodeid()));
+			char outchar = 'l';
+			int repeat = Carrier.MAX_APP_MESSAGE_LEN << 1;
+			char[] out = new char[repeat];
+			Arrays.fill(out, outchar);
+			String out_str = new String(out);
+
+			carrier.sendFriendLargeMessage(robot.getNodeid(), out_str);
+			String[] args = robot.readAck();
+			assertTrue(args != null && args.length == 2);
+			assertEquals(repeat, Integer.parseInt(args[0]));
+			assertEquals(outchar, args[1].charAt(0));
+
+			carrier.sendFriendLargeMessage(robot.getNodeid(),
+					out_str.substring(0, Carrier.MAX_APP_MESSAGE_LEN - 1));
+			args = robot.readAck();
+			assertTrue(args != null && args.length == 2);
+			assertEquals(Carrier.MAX_APP_MESSAGE_LEN - 1, Integer.parseInt(args[0]));
+			assertEquals(outchar, args[1].charAt(0));
+		}
+		catch (CarrierException e) {
+			e.printStackTrace();
+			fail();
+		}
+	}
+
+	@Test
+	public void testReceiveLargeMessageFromFriend() {
+		try {
+			friendConnSyncher.reset();
+			commonSyncher.reset();
+
+			assertTrue(TestHelper.addFriendAnyway(carrier, robot, commonSyncher, friendConnSyncher, context));
+			assertTrue(carrier.isFriend(robot.getNodeid()));
+
+			char outchar = 'l';
+			int repeat = Carrier.MAX_APP_MESSAGE_LEN << 1;
+			assertTrue(robot.writeCmd(String.format("flmsg %s %c %d", carrier.getUserId(), outchar, repeat)));
+
+			// wait for message from robot.
+			commonSyncher.await();
+
+			TestContext.Bundle bundle = context.getExtra();
+			assertEquals(robot.getNodeid(), bundle.getFrom());
+			assertEquals(outchar, bundle.getExtraData().toString().charAt(0));
+			assertEquals(repeat, bundle.getExtraData().toString().length());
+
+			assertTrue(robot.writeCmd(String.format("flmsg %s %c %d", carrier.getUserId(),
+									  outchar, Carrier.MAX_APP_MESSAGE_LEN - 1)));
+
+			// wait for message from robot.
+			commonSyncher.await();
+
+			bundle = context.getExtra();
+			assertEquals(robot.getNodeid(), bundle.getFrom());
+			assertEquals(outchar, bundle.getExtraData().toString().charAt(0));
+			assertEquals(bundle.getExtraData().toString().length(),
+						 Carrier.MAX_APP_MESSAGE_LEN - 1);
+		}
+		catch (CarrierException e) {
+			e.printStackTrace();
+			fail();
 		}
 	}
 

@@ -407,6 +407,46 @@ void cbOnFriendMessage(ElaCarrier* carrier, const char* friendId, const void* me
 }
 
 static
+void cbOnFriendLargeMessage(ElaCarrier* carrier, const char* friendId, const void* message,
+                            size_t length, void* context)
+{
+    HandlerContext* hc = (HandlerContext*)context;
+    jstring jfriendId;
+    jstring jmessage;
+
+    assert(carrier);
+    assert(friendId);
+    assert(message);
+    assert(length > 0);
+
+    assert(carrier == hc->nativeCarrier);
+    assert(hc->env);
+
+    jfriendId = (*hc->env)->NewStringUTF(hc->env, friendId);
+    if (!jfriendId) {
+        logE("New Java String object error");
+        return;
+    }
+    jmessage = (*hc->env)->NewByteArray(hc->env, length);
+    if (!jmessage) {
+        logE("New Java byte array error");
+        (*hc->env)->DeleteLocalRef(hc->env, jfriendId);
+        return;
+    }
+    (*hc->env)->SetByteArrayRegion(hc->env, jmessage, 0, length, (jbyte *)message);
+
+    if (!callVoidMethod(hc->env, hc->clazz, hc->callbacks,
+                        "onFriendLargeMessage",
+                        "("_W("Carrier;")_J("String;[B)V"),
+                        hc->carrier, jfriendId, jmessage)) {
+        logE("Call Carrier.Callbacks.onFriendLargeMessage error");
+    }
+
+    (*hc->env)->DeleteLocalRef(hc->env, jfriendId);
+    (*hc->env)->DeleteLocalRef(hc->env, jmessage);
+}
+
+static
 void cbOnFriendInviteRquest(ElaCarrier* carrier, const char* from, const char *bundle,
                             const void* hello, size_t length, void* context)
 {
@@ -710,6 +750,7 @@ ElaCallbacks carrierCallbacks = {
         .friend_added    = cbOnFriendAdded,
         .friend_removed  = cbOnFriendRemoved,
         .friend_message  = cbOnFriendMessage,
+        .friend_large_message = cbOnFriendLargeMessage,
         .friend_invite   = cbOnFriendInviteRquest,
         .group_invite    = cbOnGroupInvite,
         .group_callbacks = {

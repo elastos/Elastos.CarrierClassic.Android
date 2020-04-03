@@ -125,6 +125,10 @@ public class Carrier {
 			carrier.handler.onFriendMessage(carrier, from, message, isOffline);
 		}
 
+		void onFriendLargeMessage(Carrier carrier, String from, byte[] message) {
+			carrier.handler.onFriendLargeMessage(carrier, from, message);
+		}
+
 		void onFriendInviteRequest(Carrier carrier, String from, String data) {
 			carrier.handler.onFriendInviteRequest(carrier, from, data);
 		}
@@ -346,6 +350,7 @@ public class Carrier {
 	private native boolean remove_friend(String userId);
 
 	private native int send_message(String to, byte[] message);
+	private native int send_large_message(String to, byte[] message);
 	private native boolean friend_invite(String to, String data,
 										 FriendInviteResponseHandler handler);
 	private native boolean reply_friend_invite(String from, int status, String reason,
@@ -906,6 +911,52 @@ public class Carrier {
 
 		Log.d(TAG, "Send " + message.length + " bytes message to friend " + to);
 		return (ret == 0);
+	}
+
+	/**
+	 * Send a string message to a friend.
+	 *
+	 * The length of the message is restricted to the maximum number that can be represented
+	 * in a 4 bytes unsigned int.
+	 *
+	 * @param
+	 * 		to 			The target id
+	 * @param
+	 * 		message		The message content defined by application
+	 *
+	 * @throws IllegalArgumentException illegal exception.
+	 * @throws CarrierException  carrier exception.
+	 */
+	public void sendFriendLargeMessage(String to, String message) throws CarrierException {
+		if (to == null || to.length() == 0 || message == null || message.length() == 0)
+			throw new IllegalArgumentException();
+
+		sendFriendLargeMessage(to, message.getBytes(UTF8));
+	}
+
+	/**
+	 * Send a binary message to a friend.
+	 *
+	 * The length of the message is restricted to the maximum number that can be represented
+	 * in a 4 bytes unsigned int.
+	 *
+	 * @param
+	 * 		to 			The target id
+	 * @param
+	 * 		message		The message content defined by application
+	 *
+	 * @throws IllegalArgumentException illegal exception.
+	 * @throws CarrierException  carrier exception.
+	 */
+	public void sendFriendLargeMessage(String to, byte[] message) throws CarrierException {
+		if (to == null || to.length() == 0 || message == null || message.length == 0)
+			throw new IllegalArgumentException();
+
+		int ret = send_large_message(to, message);
+		if (ret < 0)
+			throw CarrierException.fromErrorCode(get_error_code());
+
+		Log.d(TAG, "Send " + message.length + " bytes large message to friend " + to);
 	}
 
 	/**
