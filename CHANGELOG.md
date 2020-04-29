@@ -1,3 +1,16 @@
+01/28/2019 Meng Xiaokun  <mengxiaokun@trinity-tech.io>
+
+Release-v5.5.1 Main changes:
+
+- add bulk message test case.
+- update bulk message max size.
+- Updates testcases refereneces to create carrier instances APIs
+- Added some extension feature for webrtc
+- Add filetransfer-related test cases.
+- Added test cases for offline messaging, but now blocked
+
+
+
 03/31/2020 Wang Ran <snackwang.petter@gmail.com>
 
 Release-v5.5.0 Main changes:
