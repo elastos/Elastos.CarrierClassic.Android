@@ -23,6 +23,7 @@
 package org.elastos.carrier;
 
 import java.util.List;
+import java.util.Date;
 
 /**
  * The abstract carrier node handler class.
@@ -175,7 +176,7 @@ public abstract class AbstractCarrierHandler extends AbstractGroupHandler implem
 	 *                  as offline message, otherwise as online message.
 	 */
 	@Override
-	public void onFriendMessage(Carrier carrier, String from, byte[] message, Long timestamp, boolean isOffline) {}
+	public void onFriendMessage(Carrier carrier, String from, byte[] message, Date timestamp, boolean isOffline) {}
 
 	/**
 	 * The callback function to process the friend invite request.

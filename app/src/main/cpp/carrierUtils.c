@@ -506,6 +506,7 @@ int newJavaReceiptState(JNIEnv* env, ElaReceiptState state, jobject* jstate)
     jobject jobj;
     int rc;
 
+    assert(env);
     assert(jstate);
 
     clazz = (*env)->FindClass(env, _T("ReceiptState"));
@@ -522,5 +523,37 @@ int newJavaReceiptState(JNIEnv* env, ElaReceiptState state, jobject* jstate)
     }
 
     *jstate = jobj;
+    return 1;
+}
+
+int newJavaDate(JNIEnv* env, int64_t timestamp, jobject* jdate)
+{
+    jclass clazz;
+    jobject jobj;
+    jmethodID ctor;
+    int rc;
+
+    assert(env);
+    assert(jdate);
+
+    clazz = (*env)->FindClass(env, "Ljava/util/Date");
+    if (!clazz) {
+        logE("Java class 'java/util/Date' not found");
+        return 0;
+    }
+
+    ctor = (*env)->GetMethodID(env, clazz, "<init>", "(L)V");
+    if (!ctor) {
+        logE("Contructor GroupPeerInfo() not found");
+        return 0;
+    }
+
+    jobj = (*env)->NewObject(env, clazz, ctor, timestamp/1000);
+    if (!jobj) {
+        logE("New class GroupPeerInfo object error");
+        return 0;
+    }
+
+    *jdate = jobj;
     return 1;
 }

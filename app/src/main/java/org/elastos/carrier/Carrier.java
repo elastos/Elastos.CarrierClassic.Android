@@ -25,6 +25,7 @@ package org.elastos.carrier;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.util.List;
+import java.util.Date;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Hashtable;
@@ -121,7 +122,7 @@ public class Carrier {
 			carrier.handler.onFriendRemoved(carrier, friendId);
 		}
 
-		void onFriendMessage(Carrier carrier, String from, byte[] message, Long timestamp, boolean isOffline) {
+		void onFriendMessage(Carrier carrier, String from, byte[] message, Date timestamp, boolean isOffline) {
 			carrier.handler.onFriendMessage(carrier, from, message, timestamp, isOffline);
 		}
 
@@ -921,27 +922,56 @@ public class Carrier {
 	 * 		to 			The target id
 	 * @param
 	 * 		message		The message content defined by application
-	 *
+	 * @param
+	 *      handler     The handler to receive the receipt notification.
 	 * @return
-	 *		Return boolean value whether this message sent as online message or
-	 *		offline message. The value of true means the message was sent as
-	 *		online message, otherwise as offline message.
+	 *      Return the message identifier which would be used for handler to
+	 *      invoke receipt notification.
 	 *
 	 * @throws IllegalArgumentException illegal exception.
 	 * @throws CarrierException  carrier exception.
 	 */
-	public boolean sendFriendMessage(String to, byte[] message, FriendMessageReceiptHandler handler)
+	public long sendFriendMessage(String to, String message, FriendMessageReceiptHandler handler)
+			throws CarrierException {
+		if (to == null || to.length() == 0 ||
+				message == null || message.length() == 0 || message.length() >= ELA_MAX_APP_BULKMSG_LEN)
+			throw new IllegalArgumentException();
+
+		return sendFriendMessage(to, message.getBytes(UTF8), handler);
+	}
+
+	/**
+	 * Send a message to a friend.
+	 *
+	 * The message length may not exceed ELA_MAX_APP_BULKMSG_LEN, and message itself
+	 * should be text-formatted. Larger messages must be split by application
+	 * and sent as separate messages. Other nodes can reassemble the fragments.
+	 *
+	 * @param
+	 * 		to 			The target id
+	 * @param
+	 * 		message		The message content defined by application
+	 * @param
+	 *      handler     The handler to receive the receipt notification.
+	 * @return
+	 *      Return the message identifier which would be used for handler to
+	 * 	    invoke receipt notification.
+	 *
+	 * @throws IllegalArgumentException illegal exception.
+	 * @throws CarrierException  carrier exception.
+	 */
+	public long sendFriendMessage(String to, byte[] message, FriendMessageReceiptHandler handler)
 			throws CarrierException {
 		if (to == null || to.length() == 0 || message == null || message.length == 0 ||
 				handler == null)
 			throw new IllegalArgumentException();
 
-		int ret = send_message_with_receipt(to, message, handler);
+		long ret = send_message_with_receipt(to, message, handler);
 		if (ret < 0)
 			throw CarrierException.fromErrorCode(get_error_code());
 
 		Log.d(TAG, "Send " + message.length + " bytes message with receipt ack to friend " + to);
-		return (ret == 0);
+		return ret;
 	}
 
 	/**

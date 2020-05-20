@@ -69,4 +69,6 @@ int newJavaGroupPeerInfo(JNIEnv* env, const ElaGroupPeer* peer, jobject* jpeerIn
 
 int newJavaReceiptState(JNIEnv* env, ElaReceiptState state, jobject* jstate);
 
+int newJavaDate(JNIEnv* env, int64_t timestamp, jobject* jdate);
+
 #endif //__CARRIER_UTILS_H__

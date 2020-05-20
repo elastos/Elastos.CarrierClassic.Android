@@ -37,5 +37,5 @@ public interface FriendMessageReceiptHandler {
 	 * @param
 	 *      state       The message sent state.
 	 */
-	void onReceipt(Long messageid, ReceiptState state);
+	void onReceipt(long messageid, ReceiptState state);
 }

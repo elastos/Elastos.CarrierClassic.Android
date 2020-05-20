@@ -372,6 +372,8 @@ void cbOnFriendMessage(ElaCarrier* carrier, const char* friendId, const void* me
     HandlerContext* hc = (HandlerContext*)context;
     jstring jfriendId;
     jstring jmessage;
+    jobject jdate;
+    int rc;
 
     assert(carrier);
     assert(friendId);
@@ -394,10 +396,18 @@ void cbOnFriendMessage(ElaCarrier* carrier, const char* friendId, const void* me
     }
     (*hc->env)->SetByteArrayRegion(hc->env, jmessage, 0, length, (jbyte *)message);
 
+    rc = newJavaDate(hc->env, timestamp, &jdate);
+    if (!rc) {
+        logE("New java Date object error");
+        (*hc->env)->DeleteGlobalRef(hc->env, jfriendId);
+        (*hc->env)->DeleteLocalRef(hc->env, jmessage);
+        return;
+    }
+
     if (!callVoidMethod(hc->env, hc->clazz, hc->callbacks,
                         "onFriendMessage",
-                        "("_W("Carrier;")_J("String;[BJZ)V"),
-                        hc->carrier, jfriendId, jmessage, (jlong)timestamp,
+                        "("_W("Carrier;")_J("String;[B")"Ljava/util/Date;Z)V",
+                        hc->carrier, jfriendId, jmessage, jdate,
                         isOffline ? JNI_TRUE : JNI_FALSE)) {
         logE("Call Carrier.Callbacks.onFriendMessage error");
     }
