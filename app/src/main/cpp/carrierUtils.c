@@ -499,3 +499,28 @@ int newJavaGroupPeerInfo(JNIEnv* env, const ElaGroupPeer* peer, jobject* jpeerIn
     *jpeerInfo = jobj;
     return 1;
 }
+
+int newJavaReceiptState(JNIEnv* env, ElaReceiptState state, jobject* jstate)
+{
+    jclass clazz;
+    jobject jobj;
+    int rc;
+
+    assert(jstate);
+
+    clazz = (*env)->FindClass(env, _T("ReceiptState"));
+    if (!clazz) {
+        logE("Java class 'ReceiptState' not found");
+        return 0;
+    }
+
+    rc = callStaticObjectMethod(env, clazz, "valueOf", "(I)"_W("ReceiptState;"),
+                                &jobj, state);
+    if (!rc) {
+        logE("call static method ReceiptState::valueOf error");
+        return 0;
+    }
+
+    *jstate = jobj;
+    return 1;
+}

@@ -346,6 +346,8 @@ public class Carrier {
 	private native boolean remove_friend(String userId);
 
 	private native int send_message(String to, byte[] message);
+	private native int send_message_with_receipt(String to, byte[] message,
+												 FriendMessageReceiptHandler handler);
 	private native boolean friend_invite(String to, String data,
 										 FriendInviteResponseHandler handler);
 	private native boolean reply_friend_invite(String from, int status, String reason,
@@ -905,6 +907,40 @@ public class Carrier {
 			throw CarrierException.fromErrorCode(get_error_code());
 
 		Log.d(TAG, "Send " + message.length + " bytes message to friend " + to);
+		return (ret == 0);
+	}
+
+	/**
+	 * Send a message to a friend.
+	 *
+	 * The message length may not exceed ELA_MAX_APP_BULKMSG_LEN, and message itself
+	 * should be text-formatted. Larger messages must be split by application
+	 * and sent as separate messages. Other nodes can reassemble the fragments.
+	 *
+	 * @param
+	 * 		to 			The target id
+	 * @param
+	 * 		message		The message content defined by application
+	 *
+	 * @return
+	 *		Return boolean value whether this message sent as online message or
+	 *		offline message. The value of true means the message was sent as
+	 *		online message, otherwise as offline message.
+	 *
+	 * @throws IllegalArgumentException illegal exception.
+	 * @throws CarrierException  carrier exception.
+	 */
+	public boolean sendFriendMessage(String to, byte[] message, FriendMessageReceiptHandler handler)
+			throws CarrierException {
+		if (to == null || to.length() == 0 || message == null || message.length == 0 ||
+				handler == null)
+			throw new IllegalArgumentException();
+
+		int ret = send_message_with_receipt(to, message, handler);
+		if (ret < 0)
+			throw CarrierException.fromErrorCode(get_error_code());
+
+		Log.d(TAG, "Send " + message.length + " bytes message with receipt ack to friend " + to);
 		return (ret == 0);
 	}
 
