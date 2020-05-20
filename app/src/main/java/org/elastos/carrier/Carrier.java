@@ -175,7 +175,7 @@ public class Carrier {
 		private String persistentLocation;
 		private boolean udpEnabled;
 		private List<BootstrapNode> bootstrapNodes;
-		private List<HiveBootstrapNode> hiveBootstrapNodes;
+		private List<ExpressNode> expressNodes;
 
 		public static class BootstrapNode {
 			private String ipv4;
@@ -220,12 +220,12 @@ public class Carrier {
 			}
 		}
 
-		public static class HiveBootstrapNode {
+		public static class ExpressNode {
 			private String ipv4;
-			private String ipv6;
 			private String port;
+			private String publicKey;
 
-			public HiveBootstrapNode setIpv4(String ipv4) {
+			public ExpressNode setIpv4(String ipv4) {
 				this.ipv4 = ipv4;
 				return this;
 			}
@@ -234,22 +234,22 @@ public class Carrier {
 				return ipv4;
 			}
 
-			public HiveBootstrapNode setIpv6(String ipv6) {
-				this.ipv6 = ipv6;
-				return this;
-			}
-
-			public String getIpv6() {
-				return ipv6;
-			}
-
-			public HiveBootstrapNode setPort(String port) {
+			public ExpressNode setPort(String port) {
 				this.port = port;
 				return this;
 			}
 
 			public String getPort() {
 				return port;
+			}
+
+			public ExpressNode setPublicKey(String publicKey) {
+				this.publicKey = publicKey;
+				return this;
+			}
+
+			public String getPublicKey() {
+				return publicKey;
 			}
 		}
 
@@ -307,13 +307,13 @@ public class Carrier {
 			return bootstrapNodes;
 		}
 
-		public Options setHiveBootstrapNodes(List<HiveBootstrapNode> hiveBootstrapNodes) {
-			this.hiveBootstrapNodes = hiveBootstrapNodes;
+		public Options setExpressNodes(List<ExpressNode> expressNodes) {
+			this.expressNodes = expressNodes;
 			return this;
 		}
 
-		public List<HiveBootstrapNode> getHiveBootstrapNodes() {
-			return hiveBootstrapNodes;
+		public List<ExpressNode> getExpressNodes() {
+			return expressNodes;
 		}
 	}
 

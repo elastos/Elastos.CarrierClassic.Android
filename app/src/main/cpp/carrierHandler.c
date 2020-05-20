@@ -367,7 +367,7 @@ void cbOnFriendRequest(ElaCarrier* carrier, const char* userId, const ElaUserInf
 
 static
 void cbOnFriendMessage(ElaCarrier* carrier, const char* friendId, const void* message, size_t length,
-                       bool isOffline, void* context)
+                       int64_t timestamp, bool isOffline, void* context)
 {
     HandlerContext* hc = (HandlerContext*)context;
     jstring jfriendId;

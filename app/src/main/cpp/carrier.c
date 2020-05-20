@@ -130,8 +130,8 @@ jboolean carrierInit(JNIEnv* env, jobject thiz, jobject joptions, jobject jcallb
         .persistent_location = helper.persistent_location,
         .bootstraps_size = helper.bootstraps_size,
         .bootstraps = (BootstrapNode *)helper.bootstraps,
-        .hive_bootstraps_size = helper.hive_bootstraps_size,
-        .hive_bootstraps = (HiveBootstrapNode *)helper.hive_bootstraps
+        .express_nodes_size = helper.express_nodes_size,
+        .express_nodes = (ExpressNode *)helper.express_nodes
     };
 
     if (!handlerCtxtSet(hc, env, thiz, jcallbacks)) {
