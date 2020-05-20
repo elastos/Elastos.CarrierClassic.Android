@@ -396,8 +396,8 @@ void cbOnFriendMessage(ElaCarrier* carrier, const char* friendId, const void* me
 
     if (!callVoidMethod(hc->env, hc->clazz, hc->callbacks,
                         "onFriendMessage",
-                        "("_W("Carrier;")_J("String;[BZ)V"),
-                        hc->carrier, jfriendId, jmessage,
+                        "("_W("Carrier;")_J("String;[BJZ)V"),
+                        hc->carrier, jfriendId, jmessage, (jlong)timestamp,
                         isOffline ? JNI_TRUE : JNI_FALSE)) {
         logE("Call Carrier.Callbacks.onFriendMessage error");
     }

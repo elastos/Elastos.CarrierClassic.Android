@@ -121,8 +121,8 @@ public class Carrier {
 			carrier.handler.onFriendRemoved(carrier, friendId);
 		}
 
-		void onFriendMessage(Carrier carrier, String from, byte[] message, boolean isOffline) {
-			carrier.handler.onFriendMessage(carrier, from, message, isOffline);
+		void onFriendMessage(Carrier carrier, String from, byte[] message, Long timestamp, boolean isOffline) {
+			carrier.handler.onFriendMessage(carrier, from, message, timestamp, isOffline);
 		}
 
 		void onFriendInviteRequest(Carrier carrier, String from, String data) {
