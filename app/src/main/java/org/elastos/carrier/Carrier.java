@@ -347,8 +347,8 @@ public class Carrier {
 	private native boolean remove_friend(String userId);
 
 	private native int send_message(String to, byte[] message);
-	private native int send_message_with_receipt(String to, byte[] message,
-												 FriendMessageReceiptHandler handler);
+	private native long send_message_with_receipt(String to, byte[] message,
+												  FriendMessageReceiptHandler handler);
 	private native boolean friend_invite(String to, String data,
 										 FriendInviteResponseHandler handler);
 	private native boolean reply_friend_invite(String from, int status, String reason,
