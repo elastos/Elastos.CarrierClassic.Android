@@ -536,7 +536,7 @@ int newJavaDate(JNIEnv* env, int64_t timestamp, jobject* jdate)
     assert(env);
     assert(jdate);
 
-    clazz = (*env)->FindClass(env, "Ljava/util/Date");
+    clazz = (*env)->FindClass(env, "java/util/Date");
     if (!clazz) {
         logE("Java class 'java/util/Date' not found");
         return 0;
