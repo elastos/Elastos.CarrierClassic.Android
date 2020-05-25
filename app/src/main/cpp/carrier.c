@@ -666,7 +666,7 @@ void messageReceiptCallback(int64_t msgid, ElaReceiptState state, void *context)
     }
 
     if (!callVoidMethod(env, NULL, jhandler, "onReceipt",
-                        "(J"_J("ReceiptState;)V"), (jlong)msgid, jstate)) {
+                        "(J"_W("ReceiptState;)V"), (jlong)msgid, jstate)) {
         logE("Call method 'void onReceipt(Long, ReceiptState)' error");
     }
 
@@ -925,7 +925,7 @@ static JNINativeMethod gMethods[] = {
         {"accept_friend",      "("_J("String;)Z"),                 (void *) acceptFriend       },
         {"remove_friend",      "("_J("String;)Z"),                 (void *) removeFriend       },
         {"send_message",       "("_J("String;[B)I"),               (void *) sendMessage        },
-        {"send_message_with_receipt", "("_J("String;[B")_W("FriendMessageReceipthandler;)L"),     \
+        {"send_message_with_receipt", "("_J("String;[B")_W("FriendMessageReceiptHandler;)J"),     \
                                                                    (void *) sendMessageWithReceipt },
         {"friend_invite",      "("_J("String;")_J("String;")_W("FriendInviteResponseHandler;)Z"), \
                                                                    (void*)inviteFriend         },

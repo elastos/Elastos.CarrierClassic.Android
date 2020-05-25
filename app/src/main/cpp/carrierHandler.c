@@ -399,7 +399,7 @@ void cbOnFriendMessage(ElaCarrier* carrier, const char* friendId, const void* me
     rc = newJavaDate(hc->env, timestamp, &jdate);
     if (!rc) {
         logE("New java Date object error");
-        (*hc->env)->DeleteGlobalRef(hc->env, jfriendId);
+        (*hc->env)->DeleteLocalRef(hc->env, jfriendId);
         (*hc->env)->DeleteLocalRef(hc->env, jmessage);
         return;
     }
