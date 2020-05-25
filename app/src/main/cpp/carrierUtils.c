@@ -542,7 +542,7 @@ int newJavaDate(JNIEnv* env, int64_t timestamp, jobject* jdate)
         return 0;
     }
 
-    ctor = (*env)->GetMethodID(env, clazz, "<init>", "(L)V");
+    ctor = (*env)->GetMethodID(env, clazz, "<init>", "(J)V");
     if (!ctor) {
         logE("Contructor GroupPeerInfo() not found");
         return 0;
