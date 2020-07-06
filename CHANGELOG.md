@@ -1,3 +1,14 @@
+07/06/2020 Meng Xiaokun  <mengxiaokun@trinity-tech.io>
+
+Release-v5.6.2 Main changes:
+	Carrier:
+	- add parameter secret_key.
+
+	Native carrier lib changes:
+	- Update libsodium to 1.0.18.
+	- Fix crash issue when online message send timeout.
+
+
 06/18/2020 Meng Xiaokun  <mengxiaokun@trinity-tech.io>
 
 Release-v5.6.1 Main changes:
