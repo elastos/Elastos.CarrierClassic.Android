@@ -2,6 +2,7 @@
 
 Release-v5.6.2 Main changes:
 	Carrier:
+    - Update Group.getId() to public.
 	- add parameter secret_key.
 
 	Native carrier lib changes:
