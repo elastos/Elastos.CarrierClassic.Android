@@ -225,12 +225,9 @@ bool dataCallback(ElaFileTransfer *filetransfer, const char *fileid,
     JNIEnv* env;
     jstring jfileid;
     jboolean jresult;
-    jbyteArray jdata;
 
     assert(filetransfer);
     assert(fileid);
-    assert(data);
-    assert(length);
     assert(context);
 
     env = attachJvm(&needDetach);
@@ -246,28 +243,34 @@ bool dataCallback(ElaFileTransfer *filetransfer, const char *fileid,
         return true;
     }
 
-    jdata = (*env)->NewByteArray(env, (jsize)length);
-    if (!jdata) {
-        (*env)->DeleteLocalRef(env, jfileid);
-        detachJvm(env, needDetach);
-        return true;
-    }
-    (*env)->SetByteArrayRegion(env, jdata, 0, (jsize)length, (const jbyte *)data);
-
     if (!length) {
         if (!callVoidMethod(env, cc->clazz, cc->handler, "onDataFinished",
                             "("_F("FileTransfer;")_J("String;)V"),
                             cc->object, jfileid))
             logE("Call java callback 'void onDataFinished(FileTransfer, String) error");
         jresult = JNI_FALSE;
-    } else if (!callBooleanMethod(env, cc->clazz, cc->handler, "onData",
-                                  "("_F("FileTransfer;")_J("String;[B)Z"),
-                                  &jresult, cc->object, jfileid, jdata)) {
-        logE("Call java callback 'bool onData(FileTransfer, String, byte[]) error");
+    } else {
+        jbyteArray jdata;
+
+        jdata = (*env)->NewByteArray(env, (jsize)length);
+        if (!jdata) {
+            (*env)->DeleteLocalRef(env, jfileid);
+            detachJvm(env, needDetach);
+            return true;
+        }
+        (*env)->SetByteArrayRegion(env, jdata, 0, (jsize)length, (const jbyte *)data);
+
+        if (!callBooleanMethod(env, cc->clazz, cc->handler, "onData",
+                               "("_F("FileTransfer;")_J("String;[B)Z"),
+                               &jresult, cc->object, jfileid, jdata)) {
+            logE("Call java callback 'bool onData(FileTransfer, String, byte[]) error");
+            jresult = JNI_TRUE;
+        }
+
+        (*env)->DeleteLocalRef(env, jdata);
     }
 
     (*env)->DeleteLocalRef(env, jfileid);
-    (*env)->DeleteLocalRef(env, jdata);
     detachJvm(env, needDetach);
     return (bool)jresult;
 }
