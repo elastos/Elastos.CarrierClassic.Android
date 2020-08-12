@@ -22,6 +22,8 @@
 
 package org.elastos.carrier.filetransfer;
 
+import org.elastos.carrier.exceptions.CarrierException;
+
 public class FileTransferInfo {
 	private String filename;
 	private String fileId;
@@ -42,14 +44,14 @@ public class FileTransferInfo {
 	 *      size            [in] The size of the file.
 	 *
 	 * @throws
-	 * 		IllegalArgumentException
+	 * 		CarrierException
 	 */
-	public FileTransferInfo(String filename, String fileId, long size) {
+	public FileTransferInfo(String filename, String fileId, long size) throws CarrierException {
 		if (filename == null || filename.isEmpty() || (fileId != null && fileId.isEmpty()) || size == 0)
 			throw new IllegalArgumentException();
 
 		this.filename = filename;
-		this.fileId = fileId;
+		this.fileId = (fileId != null ? fileId : FileTransfer.generateFileId());
 		this.size = size;
 	}
 

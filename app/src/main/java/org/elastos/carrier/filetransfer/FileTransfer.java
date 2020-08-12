@@ -206,8 +206,7 @@ public class FileTransfer {
 	 * 		CarrierException
 	 */
 	public void addFile(FileTransferInfo fileinfo) throws CarrierException {
-		if (fileinfo == null || fileinfo.getFileName().isEmpty() ||
-			fileinfo.getSize() == 0)
+		if (fileinfo == null)
 			throw new IllegalArgumentException();
 
 		if (!native_add(fileinfo))
