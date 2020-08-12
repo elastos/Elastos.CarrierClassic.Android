@@ -317,7 +317,7 @@ public class FileTransfer {
 		if (fileId == null || fileId.isEmpty())
 			throw new IllegalArgumentException();
 
-		int bytes = native_send(fileId, new byte[0], 0, 0);
+		int bytes = native_send(fileId, null, 0, 0);
 		if (bytes < 0)
 			throw CarrierException.fromErrorCode(get_error_code());
 	}

@@ -361,7 +361,6 @@ void cancelCallback(ElaFileTransfer *filetransfer, const char *fileid,
     env = attachJvm(&needDetach);
     if (!env) {
         logE("Attach JVM error");
-        detachJvm(env, needDetach);
         return;
     }
 
@@ -576,10 +575,8 @@ jint sendData(JNIEnv* env, jobject thiz, jstring jfileid, jbyteArray jdata, jint
     int rc;
     const char *fileid;
     jbyte *data;
-    jsize len;
 
     assert(jfileid);
-    assert(jdata);
 
     fileid = (*env)->GetStringUTFChars(env, jfileid, NULL);
     if (!fileid) {
@@ -587,12 +584,16 @@ jint sendData(JNIEnv* env, jobject thiz, jstring jfileid, jbyteArray jdata, jint
         return -1;
     }
 
-    len = (*env)->GetArrayLength(env, jdata);
-    data = (*env)->GetByteArrayElements(env, jdata, NULL);
+    if (jdata)
+        data = (*env)->GetByteArrayElements(env, jdata, NULL);
 
-    rc = ela_filetransfer_send(getFileTransfer(env, thiz), fileid, (const uint8_t *)(data + joffset), (size_t)jlen);
+    rc = ela_filetransfer_send(getFileTransfer(env, thiz), fileid,
+                               (const uint8_t *)(jdata ? data + joffset : NULL),
+                               (size_t)jlen);
     (*env)->ReleaseStringUTFChars(env, jfileid, fileid);
-    (*env)->ReleaseByteArrayElements(env, jdata, data, 0);
+
+    if (jdata)
+        (*env)->ReleaseByteArrayElements(env, jdata, data, 0);
 
     if (rc < 0) {
         setErrorCode(ela_get_error());
@@ -609,13 +610,13 @@ jboolean cancelTransfer(JNIEnv* env, jobject thiz, jstring jfileid, jint jstatus
     const char *reason;
 
     assert(jfileid);
+    assert(jreason);
 
     fileid = (*env)->GetStringUTFChars(env, jfileid, NULL);
     if (!fileid) {
         setErrorCode(ELA_GENERAL_ERROR(ELAERR_LANGUAGE_BINDING));
         return JNI_FALSE;
     }
-
 
     reason = (*env)->GetStringUTFChars(env, jreason, NULL);
     if (!reason) {
