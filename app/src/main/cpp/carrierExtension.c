@@ -31,39 +31,8 @@
 #include "utils.h"
 #include "carrierCookie.h"
 #include "carrierExtUtils.h"
-
-typedef void ExtensionInviteCallback(ElaCarrier *carrier, const char *from,
-                                     const void *data, size_t len, void *context);
-extern int extension_init(ElaCarrier *carrier, ExtensionInviteCallback *callback, void *context);
-extern void extension_cleanup(ElaCarrier *carrier);
-typedef void ExtensionInviteReplyCallback(ElaCarrier *carrier, const char *from,
-                                          int status, const char *reason,
-                                          const void *data, size_t len, void *context);
-extern int extension_invite_friend(ElaCarrier *carrier, const char *to,
-                                   const void *data, size_t len,
-                                   ExtensionInviteReplyCallback *callback,
-                                   void *context);
-extern int extension_reply_friend_invite(ElaCarrier *carrier, const char *to,
-                                         int status, const char *reason,
-                                         const void *data, size_t len);
-
-#define ELA_MAX_TURN_SERVER_LEN         63
-
-#define ELA_MAX_TURN_USERNAME_LEN       127
-
-#define ELA_MAX_TURN_PASSWORD_LEN       63
-
-#define ELA_MAX_TURN_REALM_LEN          127
-
-typedef struct ElaTurnServer {
-    char server[ELA_MAX_TURN_SERVER_LEN + 1];
-    uint16_t port;
-    char username[ELA_MAX_TURN_USERNAME_LEN + 1];
-    char password[ELA_MAX_TURN_PASSWORD_LEN + 1];
-    char realm[ELA_MAX_TURN_REALM_LEN + 1];
-} ElaTurnServer;
-
-int ela_get_turn_server(ElaCarrier *carrier, ElaTurnServer *turn_server);
+#include "ela_turnserver.h"
+#include "extension.h"
 
 static inline
 jobject getGlobalExt(JNIEnv* env, jobject jext)
