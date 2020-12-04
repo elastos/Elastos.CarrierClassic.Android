@@ -641,7 +641,7 @@ jint sendMessage(JNIEnv* env, jobject thiz, jstring jto, jbyteArray jmsg)
     assert(msg);
     assert(len);
 
-    rc = ela_send_friend_message(getCarrier(env, thiz), to, msg, (size_t)len, &is_offline);
+    rc = ela_send_friend_message(getCarrier(env, thiz), to, msg, (size_t)len, NULL, NULL, NULL);
     (*env)->ReleaseStringUTFChars(env, jto, to);
 
     if (rc < 0) {
@@ -653,7 +653,7 @@ jint sendMessage(JNIEnv* env, jobject thiz, jstring jto, jbyteArray jmsg)
 }
 
 static
-void messageReceiptCallback(int64_t msgid, ElaReceiptState state, void *context)
+void messageReceiptCallback(uint32_t msgid, ElaReceiptState state, void *context)
 {
     jobject jstate;
 
@@ -683,6 +683,7 @@ jlong sendMessageWithReceipt(JNIEnv* env, jobject thiz, jstring jto, jbyteArray 
     jbyte *msg;
     jsize len;
     int64_t rc;
+    uint32_t msgid;
     bool is_offline;
     jobject gjhandler;
     void **argv;
@@ -715,8 +716,8 @@ jlong sendMessageWithReceipt(JNIEnv* env, jobject thiz, jstring jto, jbyteArray 
     argv[0] = getCarrierEnv(env, thiz);
     argv[1] = gjhandler;
 
-    rc = ela_send_message_with_receipt(getCarrier(env, thiz), to, msg, len,
-                                       messageReceiptCallback,(void *)argv);
+    rc = ela_send_friend_message(getCarrier(env, thiz), to, msg, len, &msgid,
+                                 messageReceiptCallback,(void *)argv);
     (*env)->ReleaseStringUTFChars(env, jto, to);
 
     if (rc < 0) {
@@ -725,7 +726,7 @@ jlong sendMessageWithReceipt(JNIEnv* env, jobject thiz, jstring jto, jbyteArray 
         goto errorExit;
     }
 
-    return (jlong)rc;
+    return (jlong)msgid;
 
 errorExit:
     if (to) (*env)->ReleaseStringUTFChars(env, jto, to);
