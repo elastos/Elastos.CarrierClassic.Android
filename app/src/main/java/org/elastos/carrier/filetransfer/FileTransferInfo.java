@@ -35,7 +35,7 @@ public class FileTransferInfo {
 	 * Constructor of FileTransferInfo which denotes a file.
 	 *
 	 * @param
-	 *      filename   		[in] The name of the file(no longer than ELA_MAX_FILE_NAME_LEN).
+	 *      filename   		[in] The name of the file(no longer than CARRIER_MAX_FILE_NAME_LEN).
 	 * @param
 	 *      fileId          [in] Id(obtained by calling FileTransfer.generateFileId()) assigned to the file
 	 *                         	 (This field can be left unspecified(i.e. null).In that case,

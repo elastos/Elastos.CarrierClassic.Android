@@ -25,12 +25,12 @@
 
 #include <jni.h>
 #include <stdint.h>
-#include <ela_carrier.h>
+#include <carrier.h>
 #include "utilsExt.h"
 #include "carrierHandler.h"
 
 static inline
-ElaCarrier* getCarrier(JNIEnv* env, jobject thiz)
+Carrier* getCarrier(JNIEnv* env, jobject thiz)
 {
     uint64_t ctxt = 0;
     return getLongField(env, thiz, "nativeCookie", &ctxt) ? \

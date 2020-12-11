@@ -183,9 +183,9 @@ public class GroupMessageTest {
 				group.sendMessage(hello.getBytes());
 			}
 			catch (DHTException e) {
-				final int ELAERR_WRONG_STATE = 0x0F;
+				final int ERROR_WRONG_STATE = 0x0F;
 				assertEquals(CarrierException.FACILITY_DHT, e.getFacility());
-				assertEquals(ELAERR_WRONG_STATE, e.getCode());
+				assertEquals(ERROR_WRONG_STATE, e.getCode());
 			}
 
 			carrier.groupLeave(group);

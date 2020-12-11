@@ -53,7 +53,7 @@ public class Carrier {
 	/**
 	 * Carrier App message max length.
 	 */
-	public static final int ELA_MAX_APP_BULKMSG_LEN = (5 * 1024 * 1024);
+	public static final int CARRIER_MAX_USER_NAME_LEN = (5 * 1024 * 1024);
 
 	private static final String TAG = "CarrierCore";
 	private Thread carrierThread;
@@ -881,7 +881,7 @@ public class Carrier {
 	/**
 	 * Send a message to a friend.
 	 *
-	 * The message length may not exceed ELA_MAX_APP_BULKMSG_LEN, and message itself
+	 * The message length may not exceed CARRIER_MAX_USER_NAME_LEN, and message itself
 	 * should be text-formatted. Larger messages must be split by application
 	 * and sent as separate messages. Other nodes can reassemble the fragments.
 	 *
@@ -900,7 +900,7 @@ public class Carrier {
 	 */
     public boolean sendFriendMessage(String to, String message) throws CarrierException {
 		if (to == null || to.length() == 0 ||
-				message == null || message.length() == 0 || message.length() >= ELA_MAX_APP_BULKMSG_LEN)
+				message == null || message.length() == 0 || message.length() >= CARRIER_MAX_USER_NAME_LEN)
 			throw new IllegalArgumentException();
 
 		return sendFriendMessage(to, message.getBytes(UTF8));
@@ -909,7 +909,7 @@ public class Carrier {
 	/**
 	 * Send a message to a friend.
 	 *
-	 * The message length may not exceed ELA_MAX_APP_BULKMSG_LEN, and message itself
+	 * The message length may not exceed CARRIER_MAX_USER_NAME_LEN, and message itself
 	 * should be text-formatted. Larger messages must be split by application
 	 * and sent as separate messages. Other nodes can reassemble the fragments.
 	 *
@@ -941,7 +941,7 @@ public class Carrier {
 	/**
 	 * Send a message to a friend.
 	 *
-	 * The message length may not exceed ELA_MAX_APP_BULKMSG_LEN, and message itself
+	 * The message length may not exceed CARRIER_MAX_USER_NAME_LEN, and message itself
 	 * should be text-formatted. Larger messages must be split by application
 	 * and sent as separate messages. Other nodes can reassemble the fragments.
 	 *
@@ -961,7 +961,7 @@ public class Carrier {
 	public long sendFriendMessage(String to, String message, FriendMessageReceiptHandler handler)
 			throws CarrierException {
 		if (to == null || to.length() == 0 ||
-				message == null || message.length() == 0 || message.length() >= ELA_MAX_APP_BULKMSG_LEN)
+				message == null || message.length() == 0 || message.length() >= CARRIER_MAX_USER_NAME_LEN)
 			throw new IllegalArgumentException();
 
 		return sendFriendMessage(to, message.getBytes(UTF8), handler);
@@ -970,7 +970,7 @@ public class Carrier {
 	/**
 	 * Send a message to a friend.
 	 *
-	 * The message length may not exceed ELA_MAX_APP_BULKMSG_LEN, and message itself
+	 * The message length may not exceed CARRIER_MAX_USER_NAME_LEN, and message itself
 	 * should be text-formatted. Larger messages must be split by application
 	 * and sent as separate messages. Other nodes can reassemble the fragments.
 	 *

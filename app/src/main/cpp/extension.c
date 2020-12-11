@@ -24,7 +24,7 @@
 #include <alloca.h>
 #include <string.h>
 
-#include <ela_carrier.h>
+#include <carrier.h>
 
 #include "carrier_ext.h"
 #include "extension.h"
@@ -44,7 +44,7 @@ typedef void (rc_mem_destructor)(void *data);
 extern void *rc_zalloc(size_t size, rc_mem_destructor *destructor);
 
 static
-void on_friend_invite(ElaCarrier *carrier, const char *from, const char *bundle,
+void on_friend_invite(Carrier *carrier, const char *from, const char *bundle,
                       const void *data, size_t len, void *context)
 {
     Extension *ext = (Extension *)context;
@@ -57,14 +57,14 @@ void on_friend_invite(ElaCarrier *carrier, const char *from, const char *bundle,
     callback(carrier, from, data, len, ext->user_context);
 }
 
-int extension_init(ElaCarrier *carrier, ExtensionInviteCallback *callback, void *context)
+int extension_init(Carrier *carrier, ExtensionInviteCallback *callback, void *context)
 {
     Extension *ext;
-    ElaCallbacks callbacks;
+    CarrierCallbacks callbacks;
     int rc;
 
     if (!carrier) {
-        ela_set_error(ELA_GENERAL_ERROR(ELAERR_INVALID_ARGS));
+        carrier_set_error(CARRIER_GENERAL_ERROR(ERROR_INVALID_ARGS));
         return -1;
     }
 
@@ -75,7 +75,7 @@ int extension_init(ElaCarrier *carrier, ExtensionInviteCallback *callback, void 
 
     ext = (Extension *)rc_zalloc(sizeof(Extension), NULL);
     if (!ext) {
-        ela_set_error(ELA_GENERAL_ERROR(ELAERR_OUT_OF_MEMORY));
+        carrier_set_error(CARRIER_GENERAL_ERROR(ERROR_OUT_OF_MEMORY));
         return -1;
     }
 
@@ -95,7 +95,7 @@ int extension_init(ElaCarrier *carrier, ExtensionInviteCallback *callback, void 
     return 0;
 }
 
-void extension_cleanup(ElaCarrier *carrier)
+void extension_cleanup(Carrier *carrier)
 {
     Extension *ext;
 
@@ -111,7 +111,7 @@ void extension_cleanup(ElaCarrier *carrier)
 }
 
 static
-void on_friend_invite_reply(ElaCarrier *carrier, const char *from,
+void on_friend_invite_reply(Carrier *carrier, const char *from,
                             const char *bundle, int status, const char *reason,
                             const void *data, size_t len, void *context)
 {
@@ -129,7 +129,7 @@ void on_friend_invite_reply(ElaCarrier *carrier, const char *from,
     callback(carrier, from, status, reason, data, len, user_ctx);
 }
 
-int extension_invite_friend(ElaCarrier *carrier, const char *to,
+int extension_invite_friend(Carrier *carrier, const char *to,
                             const void *data, size_t len,
                             ExtensionInviteReplyCallback *callback,
                             void *context)
@@ -139,32 +139,32 @@ int extension_invite_friend(ElaCarrier *carrier, const char *to,
     char *ext_to;
     void **callback_ctx;
 
-    if (!carrier || !to || !*to || !ela_id_is_valid(to) ||
-        !data || !len || len > ELA_MAX_INVITE_DATA_LEN || !callback) {
-        ela_set_error(ELA_GENERAL_ERROR(ELAERR_INVALID_ARGS));
+    if (!carrier || !to || !*to || !carrier_id_is_valid(to) ||
+        !data || !len || len > CARRIER_MAX_INVITE_DATA_LEN || !callback) {
+        carrier_set_error(CARRIER_GENERAL_ERROR(ERROR_INVALID_ARGS));
         return -1;
     }
 
     ext = (Extension *)carrier_get_extension(carrier, extension_name);
     if (!ext) {
-        ela_set_error(ELA_GENERAL_ERROR(ELAERR_NOT_EXIST));
+        carrier_set_error(CARRIER_GENERAL_ERROR(ERROR_NOT_EXIST));
         return -1;
     }
 
     callback_ctx = rc_zalloc(sizeof(void *) << 1, NULL);
     if (!callback_ctx) {
-        ela_set_error(ELA_GENERAL_ERROR(ELAERR_OUT_OF_MEMORY));
+        carrier_set_error(CARRIER_GENERAL_ERROR(ERROR_OUT_OF_MEMORY));
         return -1;
     }
     callback_ctx[0] = callback;
     callback_ctx[1] = context;
 
-    ext_to = (char *)alloca(ELA_MAX_ID_LEN + strlen(extension_name) + 2);
+    ext_to = (char *)alloca(CARRIER_MAX_ID_LEN + strlen(extension_name) + 2);
     strcpy(ext_to, to);
     strcat(ext_to, ":");
     strcat(ext_to, extension_name);
 
-    rc = ela_invite_friend(carrier, ext_to, NULL, data, len,
+    rc = carrier_invite_friend(carrier, ext_to, NULL, data, len,
                            on_friend_invite_reply, callback_ctx);
 
     logD("Extension: Extension invitation to %s %s.", to,
@@ -176,7 +176,7 @@ int extension_invite_friend(ElaCarrier *carrier, const char *to,
     return rc;
 }
 
-int extension_reply_friend_invite(ElaCarrier *carrier, const char *to,
+int extension_reply_friend_invite(Carrier *carrier, const char *to,
                                   int status, const char *reason,
                                   const void *data, size_t len)
 {
@@ -185,38 +185,38 @@ int extension_reply_friend_invite(ElaCarrier *carrier, const char *to,
     int rc;
 
     if (!carrier) {
-        ela_set_error(ELA_GENERAL_ERROR(ELAERR_INVALID_ARGS));
+        carrier_set_error(CARRIER_GENERAL_ERROR(ERROR_INVALID_ARGS));
         return -1;
     }
 
     ext = (Extension *)carrier_get_extension(carrier, extension_name);
     if (!ext) {
-        ela_set_error(ELA_GENERAL_ERROR(ELAERR_NOT_EXIST));
+        carrier_set_error(CARRIER_GENERAL_ERROR(ERROR_NOT_EXIST));
         return -1;
     }
 
-    if (status && (!reason || strlen(reason) > ELA_MAX_INVITE_REPLY_REASON_LEN
+    if (status && (!reason || strlen(reason) > CARRIER_MAX_INVITE_REPLY_REASON_LEN
                    || data || len > 0)) {
-        ela_set_error(ELA_GENERAL_ERROR(ELAERR_INVALID_ARGS));
+        carrier_set_error(CARRIER_GENERAL_ERROR(ERROR_INVALID_ARGS));
         return -1;
     }
 
-    if (!status && (reason || !data || !len || len > ELA_MAX_INVITE_DATA_LEN)) {
-        ela_set_error(ELA_GENERAL_ERROR(ELAERR_INVALID_ARGS));
+    if (!status && (reason || !data || !len || len > CARRIER_MAX_INVITE_DATA_LEN)) {
+        carrier_set_error(CARRIER_GENERAL_ERROR(ERROR_INVALID_ARGS));
         return -1;
     }
 
-    if (!to || !*to || !ela_id_is_valid(to)) {
-        ela_set_error(ELA_GENERAL_ERROR(ELAERR_INVALID_ARGS));
+    if (!to || !*to || !carrier_id_is_valid(to)) {
+        carrier_set_error(CARRIER_GENERAL_ERROR(ERROR_INVALID_ARGS));
         return -1;
     }
 
-    ext_to = (char *)alloca(ELA_MAX_ID_LEN + strlen(extension_name) + 2);
+    ext_to = (char *)alloca(CARRIER_MAX_ID_LEN + strlen(extension_name) + 2);
     strcpy(ext_to, to);
     strcat(ext_to, ":");
     strcat(ext_to, extension_name);
 
-    rc = ela_reply_friend_invite(carrier, ext_to, NULL, status, reason,
+    rc = carrier_reply_friend_invite(carrier, ext_to, NULL, status, reason,
                                  data, len);
 
     logD("Extension: Extension reply to %s %s.", to,

@@ -25,8 +25,8 @@
 #include <stdbool.h>
 #include <assert.h>
 #include <stdlib.h>
-#include <ela_carrier.h>
-#include <ela_filetransfer.h>
+#include <carrier.h>
+#include <carrier_filetransfer.h>
 
 #include "log.h"
 #include "fileTransferUtils.h"
@@ -53,20 +53,20 @@ CallbackContext* callbackCtxCreate(JNIEnv* env, jobject jobjekt, jobject jhandle
 
     lclazz = (*env)->GetObjectClass(env, jhandler);
     if (!lclazz) {
-        setErrorCode(ELA_GENERAL_ERROR(ELAERR_LANGUAGE_BINDING));
+        setErrorCode(CARRIER_GENERAL_ERROR(ERROR_LANGUAGE_BINDING));
         return NULL;
     }
     gclazz   = (*env)->NewGlobalRef(env, lclazz);
     gobject  = (*env)->NewGlobalRef(env, jobjekt);
     ghandler = (*env)->NewGlobalRef(env, jhandler);
     if (!gclazz || !gobject || !ghandler) {
-        setErrorCode(ELA_GENERAL_ERROR(ELAERR_LANGUAGE_BINDING));
+        setErrorCode(CARRIER_GENERAL_ERROR(ERROR_LANGUAGE_BINDING));
         goto errorExit;
     }
 
     cc = (CallbackContext*)calloc(1, sizeof(*cc));
     if (!cc) {
-        setErrorCode(ELA_GENERAL_ERROR(ELAERR_OUT_OF_MEMORY));
+        setErrorCode(CARRIER_GENERAL_ERROR(ERROR_OUT_OF_MEMORY));
         goto errorExit;
     }
 
@@ -100,7 +100,7 @@ void callbackCtxCleanup(CallbackContext* cc, JNIEnv* env)
 }
 
 static
-void stateChangedCallback(ElaFileTransfer *filetransfer,
+void stateChangedCallback(CarrierFileTransfer *filetransfer,
                           FileTransferConnection state, void *context)
 {
     CallbackContext* cc = (CallbackContext*)context;
@@ -133,7 +133,7 @@ void stateChangedCallback(ElaFileTransfer *filetransfer,
 }
 
 static
-void fileCallback(ElaFileTransfer *filetransfer, const char *fileid,
+void fileCallback(CarrierFileTransfer *filetransfer, const char *fileid,
                   const char *filename, uint64_t size, void *context)
 {
     CallbackContext* cc = (CallbackContext*)context;
@@ -181,7 +181,7 @@ void fileCallback(ElaFileTransfer *filetransfer, const char *fileid,
 }
 
 static
-void pullCallback(ElaFileTransfer *filetransfer, const char *fileid,
+void pullCallback(CarrierFileTransfer *filetransfer, const char *fileid,
                   uint64_t offset, void *context)
 {
     CallbackContext* cc = (CallbackContext*)context;
@@ -217,7 +217,7 @@ void pullCallback(ElaFileTransfer *filetransfer, const char *fileid,
 }
 
 static
-bool dataCallback(ElaFileTransfer *filetransfer, const char *fileid,
+bool dataCallback(CarrierFileTransfer *filetransfer, const char *fileid,
                   const uint8_t *data, size_t length, void *context)
 {
     CallbackContext* cc = (CallbackContext*)context;
@@ -276,7 +276,7 @@ bool dataCallback(ElaFileTransfer *filetransfer, const char *fileid,
 }
 
 static
-void pendingCallback(ElaFileTransfer *filetransfer, const char *fileid,
+void pendingCallback(CarrierFileTransfer *filetransfer, const char *fileid,
                      void *context)
 {
     CallbackContext* cc = (CallbackContext*)context;
@@ -312,7 +312,7 @@ void pendingCallback(ElaFileTransfer *filetransfer, const char *fileid,
 }
 
 static
-void resumeCallback(ElaFileTransfer *filetransfer, const char *fileid,
+void resumeCallback(CarrierFileTransfer *filetransfer, const char *fileid,
                     void *context)
 {
     CallbackContext* cc = (CallbackContext*)context;
@@ -348,7 +348,7 @@ void resumeCallback(ElaFileTransfer *filetransfer, const char *fileid,
 }
 
 static
-void cancelCallback(ElaFileTransfer *filetransfer, const char *fileid,
+void cancelCallback(CarrierFileTransfer *filetransfer, const char *fileid,
                     int status, const char *reason, void *context)
 {
     CallbackContext* cc = (CallbackContext*)context;
@@ -396,22 +396,22 @@ void cancelCallback(ElaFileTransfer *filetransfer, const char *fileid,
 static
 jobject generateFileid(JNIEnv* env, jclass clazz)
 {
-    char fileid[ELA_MAX_FILE_ID_LEN + 1];
+    char fileid[CARRIER_MAX_FILE_ID_LEN + 1];
     jstring jfileid;
 
-    ela_filetransfer_fileid(fileid, sizeof(fileid));
+    carrier_filetransfer_fileid(fileid, sizeof(fileid));
 
     jfileid = (*env)->NewStringUTF(env, fileid);
     if (!jfileid) {
         logE("New Java String object error");
-        setErrorCode(ELA_GENERAL_ERROR(ELAERR_LANGUAGE_BINDING));
+        setErrorCode(CARRIER_GENERAL_ERROR(ERROR_LANGUAGE_BINDING));
         return NULL;
     }
 
     return jfileid;
 }
 
-static ElaFileTransferCallbacks callbacks = {
+static CarrierFileTransferCallbacks callbacks = {
     .state_changed = stateChangedCallback,
     .file = fileCallback,
     .pull = pullCallback,
@@ -428,14 +428,14 @@ void close(JNIEnv* env, jobject thiz)
 
     assert(cc);
 
-    ela_filetransfer_close(getFileTransfer(env, thiz));
+    carrier_filetransfer_close(getFileTransfer(env, thiz));
     callbackCtxCleanup(cc, env);
 }
 
 static
 jstring getFileId(JNIEnv* env, jobject thiz, jstring jfilename)
 {
-    char fileid[ELA_MAX_FILE_ID_LEN + 1];
+    char fileid[CARRIER_MAX_FILE_ID_LEN + 1];
     const char *filename;
     jstring jfileid;
     char *fid;
@@ -444,22 +444,22 @@ jstring getFileId(JNIEnv* env, jobject thiz, jstring jfilename)
 
     filename = (*env)->GetStringUTFChars(env, jfilename, NULL);
     if (!filename) {
-        setErrorCode(ELA_GENERAL_ERROR(ELAERR_LANGUAGE_BINDING));
+        setErrorCode(CARRIER_GENERAL_ERROR(ERROR_LANGUAGE_BINDING));
         return NULL;
     }
 
-    fid = ela_filetransfer_get_fileid(getFileTransfer(env, thiz), filename,
+    fid = carrier_filetransfer_get_fileid(getFileTransfer(env, thiz), filename,
                                       fileid, sizeof(fileid));
     (*env)->ReleaseStringUTFChars(env, jfilename, filename);
     if (!fid) {
-        setErrorCode(ela_get_error());
+        setErrorCode(carrier_get_error());
         return NULL;
     }
 
     jfileid = (*env)->NewStringUTF(env, fileid);
     if (!jfileid) {
         logE("New Java String object error");
-        setErrorCode(ELA_GENERAL_ERROR(ELAERR_LANGUAGE_BINDING));
+        setErrorCode(CARRIER_GENERAL_ERROR(ERROR_LANGUAGE_BINDING));
         return NULL;
     }
 
@@ -469,7 +469,7 @@ jstring getFileId(JNIEnv* env, jobject thiz, jstring jfilename)
 static
 jstring getFileName(JNIEnv* env, jobject thiz, jstring jfileid)
 {
-    char filename[ELA_MAX_FILE_NAME_LEN + 1];
+    char filename[CARRIER_MAX_FILE_NAME_LEN + 1];
     const char *fileid;
     char *name;
     jstring jfilename;
@@ -478,22 +478,22 @@ jstring getFileName(JNIEnv* env, jobject thiz, jstring jfileid)
 
     fileid = (*env)->GetStringUTFChars(env, jfileid, NULL);
     if (!fileid) {
-        setErrorCode(ELA_GENERAL_ERROR(ELAERR_LANGUAGE_BINDING));
+        setErrorCode(CARRIER_GENERAL_ERROR(ERROR_LANGUAGE_BINDING));
         return NULL;
     }
 
-    name = ela_filetransfer_get_filename(getFileTransfer(env, thiz), fileid,
+    name = carrier_filetransfer_get_filename(getFileTransfer(env, thiz), fileid,
                                          filename, sizeof(filename));
     (*env)->ReleaseStringUTFChars(env, jfileid, fileid);
     if (!name) {
-        setErrorCode(ela_get_error());
+        setErrorCode(carrier_get_error());
         return NULL;
     }
 
     jfilename = (*env)->NewStringUTF(env, filename);
     if (!jfilename) {
         logE("New Java String object error");
-        setErrorCode(ELA_GENERAL_ERROR(ELAERR_LANGUAGE_BINDING));
+        setErrorCode(CARRIER_GENERAL_ERROR(ERROR_LANGUAGE_BINDING));
         return NULL;
     }
 
@@ -505,9 +505,9 @@ jboolean connect(JNIEnv* env, jobject thiz)
 {
     int rc;
 
-    rc = ela_filetransfer_connect(getFileTransfer(env, thiz));
+    rc = carrier_filetransfer_connect(getFileTransfer(env, thiz));
     if (rc < 0) {
-        setErrorCode(ela_get_error());
+        setErrorCode(carrier_get_error());
         return JNI_FALSE;
     }
 
@@ -519,9 +519,9 @@ jboolean acceptConnect(JNIEnv* env, jobject thiz)
 {
     int rc;
 
-    rc = ela_filetransfer_accept_connect(getFileTransfer(env, thiz));
+    rc = carrier_filetransfer_accept_connect(getFileTransfer(env, thiz));
     if (rc < 0) {
-        setErrorCode(ela_get_error());
+        setErrorCode(carrier_get_error());
         return JNI_FALSE;
     }
 
@@ -532,17 +532,17 @@ static
 jboolean addFile(JNIEnv* env, jobject thiz, jobject jfileinfo)
 {
     int rc;
-    ElaFileTransferInfo fileinfo;
+    CarrierFileTransferInfo fileinfo;
 
     rc = newNativeFileTransferInfo(env, jfileinfo,  &fileinfo);
     if (!rc) {
-        setErrorCode(ELA_GENERAL_ERROR(ELAERR_LANGUAGE_BINDING));
+        setErrorCode(CARRIER_GENERAL_ERROR(ERROR_LANGUAGE_BINDING));
         return JNI_FALSE;
     }
 
-    rc = ela_filetransfer_add(getFileTransfer(env, thiz), &fileinfo);
+    rc = carrier_filetransfer_add(getFileTransfer(env, thiz), &fileinfo);
     if (rc < 0) {
-        setErrorCode(ela_get_error());
+        setErrorCode(carrier_get_error());
         return JNI_FALSE;
     }
 
@@ -557,15 +557,15 @@ jboolean pullData(JNIEnv* env, jobject thiz, jstring jfileid, jlong offset)
 
     fileid = (*env)->GetStringUTFChars(env, jfileid, NULL);
     if (!fileid) {
-        setErrorCode(ELA_GENERAL_ERROR(ELAERR_LANGUAGE_BINDING));
+        setErrorCode(CARRIER_GENERAL_ERROR(ERROR_LANGUAGE_BINDING));
         return JNI_FALSE;
     }
 
-    rc = ela_filetransfer_pull(getFileTransfer(env, thiz), fileid, (uint64_t)offset);
+    rc = carrier_filetransfer_pull(getFileTransfer(env, thiz), fileid, (uint64_t)offset);
     (*env)->ReleaseStringUTFChars(env, jfileid, fileid);
 
     if (rc < 0) {
-        setErrorCode(ela_get_error());
+        setErrorCode(carrier_get_error());
         return JNI_FALSE;
     }
 
@@ -583,14 +583,14 @@ jint sendData(JNIEnv* env, jobject thiz, jstring jfileid, jbyteArray jdata, jint
 
     fileid = (*env)->GetStringUTFChars(env, jfileid, NULL);
     if (!fileid) {
-        setErrorCode(ELA_GENERAL_ERROR(ELAERR_LANGUAGE_BINDING));
+        setErrorCode(CARRIER_GENERAL_ERROR(ERROR_LANGUAGE_BINDING));
         return -1;
     }
 
     if (jdata)
         data = (*env)->GetByteArrayElements(env, jdata, NULL);
 
-    rc = ela_filetransfer_send(getFileTransfer(env, thiz), fileid,
+    rc = carrier_filetransfer_send(getFileTransfer(env, thiz), fileid,
                                (const uint8_t *)(jdata ? data + joffset : NULL),
                                (size_t)jlen);
     (*env)->ReleaseStringUTFChars(env, jfileid, fileid);
@@ -599,7 +599,7 @@ jint sendData(JNIEnv* env, jobject thiz, jstring jfileid, jbyteArray jdata, jint
         (*env)->ReleaseByteArrayElements(env, jdata, data, 0);
 
     if (rc < 0) {
-        setErrorCode(ela_get_error());
+        setErrorCode(carrier_get_error());
     }
 
     return (jint)rc;
@@ -617,24 +617,24 @@ jboolean cancelTransfer(JNIEnv* env, jobject thiz, jstring jfileid, jint jstatus
 
     fileid = (*env)->GetStringUTFChars(env, jfileid, NULL);
     if (!fileid) {
-        setErrorCode(ELA_GENERAL_ERROR(ELAERR_LANGUAGE_BINDING));
+        setErrorCode(CARRIER_GENERAL_ERROR(ERROR_LANGUAGE_BINDING));
         return JNI_FALSE;
     }
 
     reason = (*env)->GetStringUTFChars(env, jreason, NULL);
     if (!reason) {
         (*env)->ReleaseStringUTFChars(env, jfileid, fileid);
-        setErrorCode(ELA_GENERAL_ERROR(ELAERR_LANGUAGE_BINDING));
+        setErrorCode(CARRIER_GENERAL_ERROR(ERROR_LANGUAGE_BINDING));
         return JNI_FALSE;
     }
 
 
-    rc = ela_filetransfer_cancel(getFileTransfer(env, thiz), fileid, (int)jstatus, reason);
+    rc = carrier_filetransfer_cancel(getFileTransfer(env, thiz), fileid, (int)jstatus, reason);
     (*env)->ReleaseStringUTFChars(env, jfileid, fileid);
     (*env)->ReleaseStringUTFChars(env, jreason, reason);
 
     if (rc < 0) {
-        setErrorCode(ela_get_error());
+        setErrorCode(carrier_get_error());
         return JNI_FALSE;
     }
 
@@ -651,15 +651,15 @@ jboolean pendTransfer(JNIEnv* env, jobject thiz, jstring jfileid)
 
     fileid = (*env)->GetStringUTFChars(env, jfileid, NULL);
     if (!fileid) {
-        setErrorCode(ELA_GENERAL_ERROR(ELAERR_LANGUAGE_BINDING));
+        setErrorCode(CARRIER_GENERAL_ERROR(ERROR_LANGUAGE_BINDING));
         return JNI_FALSE;
     }
 
-    rc = ela_filetransfer_pend(getFileTransfer(env, thiz), fileid);
+    rc = carrier_filetransfer_pend(getFileTransfer(env, thiz), fileid);
     (*env)->ReleaseStringUTFChars(env, jfileid, fileid);
 
     if (rc < 0) {
-        setErrorCode(ela_get_error());
+        setErrorCode(carrier_get_error());
         return JNI_FALSE;
     }
 
@@ -676,15 +676,15 @@ jboolean resumeTransfer(JNIEnv* env, jobject thiz, jstring jfileid)
 
     fileid = (*env)->GetStringUTFChars(env, jfileid, NULL);
     if (!fileid) {
-        setErrorCode(ELA_GENERAL_ERROR(ELAERR_LANGUAGE_BINDING));
+        setErrorCode(CARRIER_GENERAL_ERROR(ERROR_LANGUAGE_BINDING));
         return JNI_FALSE;
     }
 
-    rc = ela_filetransfer_resume(getFileTransfer(env, thiz), fileid);
+    rc = carrier_filetransfer_resume(getFileTransfer(env, thiz), fileid);
     (*env)->ReleaseStringUTFChars(env, jfileid, fileid);
 
     if (rc < 0) {
-        setErrorCode(ela_get_error());
+        setErrorCode(carrier_get_error());
         return JNI_FALSE;
     }
 
@@ -703,8 +703,8 @@ jint getErrorCode(JNIEnv* env, jclass clazz)
 jobject filetransfer_create(JNIEnv* env, jclass clazz, jobject jcarrier, jstring jto, jobject jfileinfo, jobject jhandler)
 {
     const char *to;
-    ElaFileTransferInfo fileinfo;
-    ElaFileTransfer *filetransfer;
+    CarrierFileTransferInfo fileinfo;
+    CarrierFileTransfer *filetransfer;
     CallbackContext* cc;
     jobject jfileTransfer;
     int rc;
@@ -714,7 +714,7 @@ jobject filetransfer_create(JNIEnv* env, jclass clazz, jobject jcarrier, jstring
 
     to = (*env)->GetStringUTFChars(env, jto, NULL);
     if (!to) {
-        setErrorCode(ELA_GENERAL_ERROR(ELAERR_LANGUAGE_BINDING));
+        setErrorCode(CARRIER_GENERAL_ERROR(ERROR_LANGUAGE_BINDING));
         return NULL;
     }
 
@@ -722,7 +722,7 @@ jobject filetransfer_create(JNIEnv* env, jclass clazz, jobject jcarrier, jstring
         rc = newNativeFileTransferInfo(env, jfileinfo, &fileinfo);
         if (!rc) {
             (*env)->ReleaseStringUTFChars(env, jto, to);
-            setErrorCode(ELA_GENERAL_ERROR(ELAERR_LANGUAGE_BINDING));
+            setErrorCode(CARRIER_GENERAL_ERROR(ERROR_LANGUAGE_BINDING));
             return NULL;
         }
     }
@@ -730,7 +730,7 @@ jobject filetransfer_create(JNIEnv* env, jclass clazz, jobject jcarrier, jstring
     rc = newJavaFileTransfer(env, &jfileTransfer);
     if (!rc) {
         (*env)->ReleaseStringUTFChars(env, jto, to);
-        setErrorCode(ELA_GENERAL_ERROR(ELAERR_LANGUAGE_BINDING));
+        setErrorCode(CARRIER_GENERAL_ERROR(ERROR_LANGUAGE_BINDING));
         return NULL;
     }
 
@@ -741,13 +741,13 @@ jobject filetransfer_create(JNIEnv* env, jclass clazz, jobject jcarrier, jstring
         return NULL;
     }
 
-    filetransfer = ela_filetransfer_new(getCarrier(env, jcarrier), to, jfileinfo ? &fileinfo : NULL,
+    filetransfer = carrier_filetransfer_new(getCarrier(env, jcarrier), to, jfileinfo ? &fileinfo : NULL,
                                         &callbacks, cc);
     if (!filetransfer) {
         (*env)->ReleaseStringUTFChars(env, jto, to);
         (*env)->DeleteLocalRef(env, jfileTransfer);
         callbackCtxCleanup(cc, env);
-        setErrorCode(ela_get_error());
+        setErrorCode(carrier_get_error());
         return NULL;
     }
 

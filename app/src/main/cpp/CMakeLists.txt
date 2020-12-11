@@ -32,6 +32,6 @@ add_library(carrierjni SHARED ${SOURCES})
 target_link_libraries(carrierjni
                       log
                       crystal
-                      elacarrier
-                      elasession
-                      elafiletrans)
+                      carrier
+                      carriersession
+                      carrierfiletrans)

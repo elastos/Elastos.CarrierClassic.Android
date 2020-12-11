@@ -25,8 +25,8 @@
 #include <stdbool.h>
 #include <assert.h>
 #include <stdlib.h>
-#include <ela_carrier.h>
-#include <ela_session.h>
+#include <carrier.h>
+#include <carrier_session.h>
 
 #include "log.h"
 #include "utils.h"
@@ -44,7 +44,7 @@ typedef struct CallbackContext {
 static
 void sessionClose(JNIEnv* env, jobject thiz)
 {
-    ela_session_close(getSession(env, thiz));
+    carrier_session_close(getSession(env, thiz));
 }
 
 static
@@ -94,7 +94,7 @@ void callbackCtxtCleanup(CallbackContext* cc, JNIEnv* env)
 }
 
 static
-void onSessionRequestCompleteCb(ElaSession* session, const char *bundle, int status,
+void onSessionRequestCompleteCb(CarrierSession* session, const char *bundle, int status,
                                 const char* reason, const char* sdp, size_t len, void* context)
 {
     CallbackContext* cc = (CallbackContext*)context;
@@ -149,20 +149,20 @@ jboolean sessionRequest(JNIEnv* env, jobject thiz, jobject jhandler)
 
     cc = (CallbackContext*)calloc(1, sizeof(*cc));
     if (!cc) {
-        setErrorCode(ELA_GENERAL_ERROR(ELAERR_OUT_OF_MEMORY));
+        setErrorCode(CARRIER_GENERAL_ERROR(ERROR_OUT_OF_MEMORY));
         return JNI_FALSE;
     }
 
     if (!callbackCtxtSet(cc, env, thiz, jhandler)) {
         free(cc);
-        setErrorCode(ELA_GENERAL_ERROR(ELAERR_LANGUAGE_BINDING));
+        setErrorCode(CARRIER_GENERAL_ERROR(ERROR_LANGUAGE_BINDING));
         return JNI_FALSE;
     }
 
-    rc = ela_session_request(getSession(env, thiz), NULL, onSessionRequestCompleteCb, cc);
+    rc = carrier_session_request(getSession(env, thiz), NULL, onSessionRequestCompleteCb, cc);
     if (rc < 0) {
-        logE("Call ela_session_request API error");
-        setErrorCode(ela_get_error());
+        logE("Call carrier_session_request API error");
+        setErrorCode(carrier_get_error());
         callbackCtxtCleanup(cc, env);
         free(cc);
         return JNI_FALSE;
@@ -181,18 +181,18 @@ jboolean sessionReplyRequest(JNIEnv* env, jobject thiz, jint jstatus, jstring jr
     if (jreason) {
         reason = (*env)->GetStringUTFChars(env, jreason, NULL);
         if (!reason) {
-            setErrorCode(ELA_GENERAL_ERROR(ELAERR_LANGUAGE_BINDING));
+            setErrorCode(CARRIER_GENERAL_ERROR(ERROR_LANGUAGE_BINDING));
             return JNI_FALSE;
         }
     }
 
-    rc = ela_session_reply_request(getSession(env, thiz), NULL, jstatus, reason);
+    rc = carrier_session_reply_request(getSession(env, thiz), NULL, jstatus, reason);
     if (reason)
         (*env)->ReleaseStringUTFChars(env, jreason, reason);
 
     if (rc < 0) {
-        logE("Call ela_session_reply_request API error");
-        setErrorCode(ela_get_error());
+        logE("Call carrier_session_reply_request API error");
+        setErrorCode(carrier_get_error());
         return JNI_FALSE;
     }
 
@@ -209,16 +209,16 @@ jboolean sessionStart(JNIEnv* env, jobject thiz, jstring jsdp)
 
     sdp = (*env)->GetStringUTFChars(env, jsdp, NULL);
     if (!sdp) {
-        setErrorCode(ELA_GENERAL_ERROR(ELAERR_LANGUAGE_BINDING));
+        setErrorCode(CARRIER_GENERAL_ERROR(ERROR_LANGUAGE_BINDING));
         return JNI_FALSE;
     }
 
-    rc = ela_session_start(getSession(env, thiz), sdp, strlen(sdp));
+    rc = carrier_session_start(getSession(env, thiz), sdp, strlen(sdp));
     (*env)->ReleaseStringUTFChars(env, jsdp, sdp);
 
     if (rc < 0) {
-        logE("Call ela_session_start API error");
-        setErrorCode(ela_get_error());
+        logE("Call carrier_session_start API error");
+        setErrorCode(carrier_get_error());
         return JNI_FALSE;
     }
 
@@ -226,7 +226,7 @@ jboolean sessionStart(JNIEnv* env, jobject thiz, jstring jsdp)
 }
 
 static
-void onStreamDataCallback(ElaSession* ws, int stream,
+void onStreamDataCallback(CarrierSession* ws, int stream,
                          const void* data, size_t len, void* context)
 {
     CallbackContext* cc = (CallbackContext*)context;
@@ -262,7 +262,7 @@ void onStreamDataCallback(ElaSession* ws, int stream,
 }
 
 static
-void onStateChangedCallback(ElaSession* ws, int stream, ElaStreamState state,
+void onStateChangedCallback(CarrierSession* ws, int stream, CarrierStreamState state,
                             void* context)
 {
     CallbackContext* cc = (CallbackContext*)context;
@@ -296,7 +296,7 @@ void onStateChangedCallback(ElaSession* ws, int stream, ElaStreamState state,
 }
 
 static
-bool onChannelOpenCallback(ElaSession *ws, int stream, int channel,
+bool onChannelOpenCallback(CarrierSession *ws, int stream, int channel,
                            const char* cookie, void* context)
 {
     CallbackContext* cc = (CallbackContext*)context;
@@ -340,7 +340,7 @@ bool onChannelOpenCallback(ElaSession *ws, int stream, int channel,
 }
 
 static
-void onChannelOpenedCallback(ElaSession* ws, int stream, int channel,
+void onChannelOpenedCallback(CarrierSession* ws, int stream, int channel,
                              void* context)
 {
     CallbackContext* cc = (CallbackContext*)context;
@@ -367,7 +367,7 @@ void onChannelOpenedCallback(ElaSession* ws, int stream, int channel,
 }
 
 static
-void onChannelCloseCallback(ElaSession* ws, int stream, int channel,
+void onChannelCloseCallback(CarrierSession* ws, int stream, int channel,
                             CloseReason reason, void* context)
 {
     CallbackContext* cc = (CallbackContext*)context;
@@ -402,7 +402,7 @@ void onChannelCloseCallback(ElaSession* ws, int stream, int channel,
 }
 
 static
-bool onChannelDataCallback(ElaSession* ws, int stream, int channel,
+bool onChannelDataCallback(CarrierSession* ws, int stream, int channel,
                            const void* data, size_t len, void *context)
 {
     CallbackContext* cc = (CallbackContext*)context;
@@ -442,7 +442,7 @@ bool onChannelDataCallback(ElaSession* ws, int stream, int channel,
 }
 
 static
-void onChannelPendingCallback(ElaSession* ws, int stream, int channel,
+void onChannelPendingCallback(CarrierSession* ws, int stream, int channel,
                               void* context)
 {
     CallbackContext* cc = (CallbackContext*)context;
@@ -469,7 +469,7 @@ void onChannelPendingCallback(ElaSession* ws, int stream, int channel,
 }
 
 static
-void onChannelResumeCallback(ElaSession* ws, int stream, int channel,
+void onChannelResumeCallback(CarrierSession* ws, int stream, int channel,
                              void* context)
 {
     CallbackContext* cc = (CallbackContext*)context;
@@ -499,41 +499,41 @@ static
 jobject addStream(JNIEnv* env, jobject thiz, jobject jtype, jint joptions,
                   jobject jhandler)
 {
-    ElaStreamType type;
+    CarrierStreamType type;
     jobject jstream;
     CallbackContext* cc;
-    ElaSession* session;
+    CarrierSession* session;
     int streamId;
 
     assert(jtype != NULL);
     assert(jhandler != NULL);
 
     if (!getNativeStreamType(env, jtype, &type)) {
-        setErrorCode(ELA_GENERAL_ERROR(ELAERR_LANGUAGE_BINDING));
+        setErrorCode(CARRIER_GENERAL_ERROR(ERROR_LANGUAGE_BINDING));
         return NULL;
     }
 
     // new java carrier stream object.
     if (!newJavaStream(env, jtype, &jstream)) {
-        setErrorCode(ELA_GENERAL_ERROR(ELAERR_LANGUAGE_BINDING));
+        setErrorCode(CARRIER_GENERAL_ERROR(ERROR_LANGUAGE_BINDING));
         return NULL;
     }
 
     cc = (CallbackContext*)calloc(1, sizeof(*cc));
     if (!cc) {
         (*env)->DeleteLocalRef(env, jstream);
-        setErrorCode(ELA_GENERAL_ERROR(ELAERR_OUT_OF_MEMORY));
+        setErrorCode(CARRIER_GENERAL_ERROR(ERROR_OUT_OF_MEMORY));
         return NULL;
     }
 
     if (!callbackCtxtSet(cc, env, jstream, jhandler)) {
         free(cc);
         (*env)->DeleteLocalRef(env, jstream);
-        setErrorCode(ELA_GENERAL_ERROR(ELAERR_LANGUAGE_BINDING));
+        setErrorCode(CARRIER_GENERAL_ERROR(ERROR_LANGUAGE_BINDING));
         return NULL;
     }
 
-    ElaStreamCallbacks cbs = {
+    CarrierStreamCallbacks cbs = {
             .state_changed   = onStateChangedCallback,
             .stream_data     = onStreamDataCallback,
             .channel_open    = onChannelOpenCallback,
@@ -548,13 +548,13 @@ jobject addStream(JNIEnv* env, jobject thiz, jobject jtype, jint joptions,
     setLongField(env, jstream, "nativeCookie",(uint64_t)session);
     setLongField(env, jstream, "contextCookie", (uint64_t)cc);
 
-    streamId = ela_session_add_stream(session, type, joptions, &cbs, cc);
+    streamId = carrier_session_add_stream(session, type, joptions, &cbs, cc);
     if (streamId < 0) {
-        logE("Call ela_session_add_stream API error");
+        logE("Call carrier_session_add_stream API error");
         callbackCtxtCleanup(cc, env);
         free(cc);
         (*env)->DeleteLocalRef(env, jstream);
-        setErrorCode(ela_get_error());
+        setErrorCode(carrier_get_error());
         return NULL;
     }
 
@@ -570,10 +570,10 @@ jboolean removeStream(JNIEnv* env, jobject thiz, jint streamId, jobject jstream)
     CallbackContext* cc;
     int rc;
 
-    rc = ela_session_remove_stream(getSession(env, thiz), streamId);
+    rc = carrier_session_remove_stream(getSession(env, thiz), streamId);
     if (rc < 0) {
-        logE("Call ela_session_remove_stream API error");
-        setErrorCode(ela_get_error());
+        logE("Call carrier_session_remove_stream API error");
+        setErrorCode(carrier_get_error());
         return JNI_FALSE;
     }
 
@@ -600,7 +600,7 @@ jboolean addService(JNIEnv* env, jobject thiz, jstring jservice, jobject jprotoc
     assert(jprotocol);
 
     if (!getNativeProtocol(env, jprotocol, &protocol)) {
-        setErrorCode(ELA_GENERAL_ERROR(ELAERR_LANGUAGE_BINDING));
+        setErrorCode(CARRIER_GENERAL_ERROR(ERROR_LANGUAGE_BINDING));
         return JNI_FALSE;
     }
 
@@ -609,18 +609,18 @@ jboolean addService(JNIEnv* env, jobject thiz, jstring jservice, jobject jprotoc
     port    = (*env)->GetStringUTFChars(env, jport, NULL);
 
     if (!service || !host || !port) {
-        setErrorCode(ELA_GENERAL_ERROR(ELAERR_OUT_OF_MEMORY));
+        setErrorCode(CARRIER_GENERAL_ERROR(ERROR_OUT_OF_MEMORY));
         goto errorExit;
     }
 
-    rc = ela_session_add_service(getSession(env, thiz), service, protocol, host, port);
+    rc = carrier_session_add_service(getSession(env, thiz), service, protocol, host, port);
 
     (*env)->ReleaseStringUTFChars(env, jservice, service);
     (*env)->ReleaseStringUTFChars(env, jhost, host);
     (*env)->ReleaseStringUTFChars(env, jport, port);
 
     if (rc < 0) {
-        logE("Call ela_session_add_service API error");
+        logE("Call carrier_session_add_service API error");
         return JNI_FALSE;
     }
 
@@ -643,7 +643,7 @@ void removeService(JNIEnv* env, jobject thiz, jstring jservice)
 
     service = (*env)->GetStringUTFChars(env, jservice, NULL);
     if (!service) {
-        ela_session_remove_service(getSession(env, thiz), service);
+        carrier_session_remove_service(getSession(env, thiz), service);
         (*env)->ReleaseStringUTFChars(env, jservice, service);
     }
 }

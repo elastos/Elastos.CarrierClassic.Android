@@ -24,14 +24,14 @@
 #define __SESSION_UTILS_H__
 
 #include <jni.h>
-#include <ela_carrier.h>
-#include <ela_session.h>
+#include <carrier.h>
+#include <carrier_session.h>
 
-int newJavaStreamState(JNIEnv* env, ElaStreamState state, jobject* jstate);
+int newJavaStreamState(JNIEnv* env, CarrierStreamState state, jobject* jstate);
 
-int getNativeStreamType(JNIEnv* env, jobject jjtype,  ElaStreamType* type);
+int getNativeStreamType(JNIEnv* env, jobject jjtype,  CarrierStreamType* type);
 
-int newJavaSession(JNIEnv* env, ElaSession* session, jobject jto, jobject* jsession);
+int newJavaSession(JNIEnv* env, CarrierSession* session, jobject jto, jobject* jsession);
 
 int newJavaStream(JNIEnv* env, jobject jtype, jobject* jstream);
 
@@ -39,6 +39,6 @@ int newJavaCloseReason(JNIEnv* env, CloseReason reason, jobject* jreason);
 
 int getNativeProtocol(JNIEnv* env, jobject jproto, PortForwardingProtocol* protocol);
 
-int setJavaTransportInfo(JNIEnv *env, jobject jtransport, ElaTransportInfo *info);
+int setJavaTransportInfo(JNIEnv *env, jobject jtransport, CarrierTransportInfo *info);
 
 #endif //__SESSION_UTILS_H__

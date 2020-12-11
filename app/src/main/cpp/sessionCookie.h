@@ -25,20 +25,20 @@
 
 #include <jni.h>
 #include <stdint.h>
-#include <ela_carrier.h>
-#include <ela_session.h>
+#include <carrier.h>
+#include <carrier_session.h>
 #include "utils.h"
 #include "utilsExt.h"
 
 static inline
-ElaSession* getSession(JNIEnv* env, jobject thiz)
+CarrierSession* getSession(JNIEnv* env, jobject thiz)
 {
     uint64_t ctxt = 0;
-    return getLongField(env, thiz, "nativeCookie", &ctxt) ? (ElaSession*)ctxt : NULL;
+    return getLongField(env, thiz, "nativeCookie", &ctxt) ? (CarrierSession*)ctxt : NULL;
 }
 
 static inline
-void setSessionCookie(JNIEnv* env, jobject thiz, ElaSession* session)
+void setSessionCookie(JNIEnv* env, jobject thiz, CarrierSession* session)
 {
     setLongField(env, thiz, "nativeCookie", (uint64_t)session);
 }

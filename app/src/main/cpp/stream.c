@@ -23,8 +23,8 @@
 #include <jni.h>
 #include <stdlib.h>
 #include <assert.h>
-#include <ela_carrier.h>
-#include <ela_session.h>
+#include <carrier.h>
+#include <carrier_session.h>
 
 #include "log.h"
 #include "utils.h"
@@ -34,21 +34,21 @@
 static
 jboolean getTransportInfo(JNIEnv *env, jobject thiz, jint jstreamId, jobject jtransportInfo)
 {
-    ElaTransportInfo info;
+    CarrierTransportInfo info;
     int rc;
 
     assert(jstreamId > 0);
     assert(jtransportInfo);
 
-    rc = ela_stream_get_transport_info(getSession(env, thiz), jstreamId, &info);
+    rc = carrier_stream_get_transport_info(getSession(env, thiz), jstreamId, &info);
     if (rc < 0) {
-        logE("Call ela_stream_get_transport_info error");
-        setErrorCode(ela_get_error());
+        logE("Call carrier_stream_get_transport_info error");
+        setErrorCode(carrier_get_error());
         return JNI_FALSE;
     }
 
     if (!setJavaTransportInfo(env, jtransportInfo, &info)) {
-        setErrorCode(ELAERR_LANGUAGE_BINDING);
+        setErrorCode(ERROR_LANGUAGE_BINDING);
         return JNI_FALSE;
     }
     return JNI_TRUE;
@@ -67,15 +67,15 @@ jint writeData(JNIEnv* env, jobject thiz, jint jstreamId, jbyteArray jdata, jint
 
     assert(offset >= 0 && offset < _len);
     assert((offset + len) <= _len);
-    
+
     data = (*env)->GetByteArrayElements(env, jdata, NULL);
 
-    bytes = ela_stream_write(getSession(env, thiz), jstreamId, (const void*)(data + offset), (size_t)len);
+    bytes = carrier_stream_write(getSession(env, thiz), jstreamId, (const void*)(data + offset), (size_t)len);
     (*env)->ReleaseByteArrayElements(env, jdata, data, 0);
 
     if (bytes < 0) {
-        logE("Call ela_stream_write API error");
-        setErrorCode(ela_get_error());
+        logE("Call carrier_stream_write API error");
+        setErrorCode(carrier_get_error());
         return -1;
     }
 
@@ -91,16 +91,16 @@ jint openChannel(JNIEnv* env, jobject thiz, jint streamId, jstring jcookie)
 
     cookie = (*env)->GetStringUTFChars(env, jcookie, NULL);
     if (!cookie) {
-        setErrorCode(ELA_GENERAL_ERROR(ELAERR_LANGUAGE_BINDING));
+        setErrorCode(CARRIER_GENERAL_ERROR(ERROR_LANGUAGE_BINDING));
         return -1;
     }
 
-    channel = ela_stream_open_channel(getSession(env, thiz), streamId, cookie);
+    channel = carrier_stream_open_channel(getSession(env, thiz), streamId, cookie);
     (*env)->ReleaseStringUTFChars(env, jcookie, cookie);
 
     if (channel < 0) {
-        logE("Call ela_stream_open_channel API error");
-        setErrorCode(ela_get_error());
+        logE("Call carrier_stream_open_channel API error");
+        setErrorCode(carrier_get_error());
         return -1;
     }
 
@@ -114,10 +114,10 @@ jboolean closeChannel(JNIEnv* env, jobject thiz, jint streamId, jint channel)
 
     assert(channel > 0);
 
-    rc = ela_stream_close_channel(getSession(env, thiz), streamId, channel);
+    rc = carrier_stream_close_channel(getSession(env, thiz), streamId, channel);
     if (rc < 0) {
-        logE("Call ela_stream_close_channel API error");
-        setErrorCode(ela_get_error());
+        logE("Call carrier_stream_close_channel API error");
+        setErrorCode(carrier_get_error());
         return JNI_FALSE;
     }
 
@@ -142,13 +142,13 @@ jint writeDataToChannel(JNIEnv* env, jobject thiz, jint streamId, jint channel, 
 
     data = (*env)->GetByteArrayElements(env, jdata, NULL);
 
-    bytes = ela_stream_write_channel(getSession(env, thiz), streamId, channel,
+    bytes = carrier_stream_write_channel(getSession(env, thiz), streamId, channel,
                                      (const void*)(data + offset), (size_t)len);
     (*env)->ReleaseByteArrayElements(env, jdata, data, 0);
 
     if (bytes < 0) {
-        logE("Call ela_stream_write_channel API error");
-        setErrorCode(ela_get_error());
+        logE("Call carrier_stream_write_channel API error");
+        setErrorCode(carrier_get_error());
         return -1;
     }
 
@@ -162,10 +162,10 @@ jboolean pendChannel(JNIEnv* env, jobject thiz, jint streamId, jint channel)
 
     assert(channel > 0);
 
-    rc = ela_stream_pend_channel(getSession(env, thiz), streamId, channel);
+    rc = carrier_stream_pend_channel(getSession(env, thiz), streamId, channel);
     if (rc < 0) {
-        logE("Call ela_stream_pend_channel API error");
-        setErrorCode(ela_get_error());
+        logE("Call carrier_stream_pend_channel API error");
+        setErrorCode(carrier_get_error());
         return JNI_FALSE;
     }
     return JNI_TRUE;
@@ -178,10 +178,10 @@ jboolean resumeChannel(JNIEnv* env, jobject thiz, jint streamId, jint channel)
 
     assert(channel > 0);
 
-    rc = ela_stream_resume_channel(getSession(env, thiz), streamId, channel);
+    rc = carrier_stream_resume_channel(getSession(env, thiz), streamId, channel);
     if (rc < 0) {
-        logE("Call ela_stream_resume_channel API error");
-        setErrorCode(ela_get_error());
+        logE("Call carrier_stream_resume_channel API error");
+        setErrorCode(carrier_get_error());
         return JNI_FALSE;
     }
     return JNI_TRUE;
@@ -205,7 +205,7 @@ jint openPortForwarding(JNIEnv* env, jobject thiz, jint streamId, jstring jservi
 
 
     if (!getNativeProtocol(env, jprotocol, &protocol)) {
-        setErrorCode(ELA_GENERAL_ERROR(ELAERR_LANGUAGE_BINDING));
+        setErrorCode(CARRIER_GENERAL_ERROR(ERROR_LANGUAGE_BINDING));
         return -1;
     }
 
@@ -214,11 +214,11 @@ jint openPortForwarding(JNIEnv* env, jobject thiz, jint streamId, jstring jservi
     port = (*env)->GetStringUTFChars(env, jport, NULL);
 
     if (!service || !host || !port) {
-        setErrorCode(ELA_GENERAL_ERROR(ELAERR_LANGUAGE_BINDING));
+        setErrorCode(CARRIER_GENERAL_ERROR(ERROR_LANGUAGE_BINDING));
         goto errorExit;
     }
 
-    pfId = ela_stream_open_port_forwarding(getSession(env, thiz), streamId,
+    pfId = carrier_stream_open_port_forwarding(getSession(env, thiz), streamId,
                                            service, protocol, host, port);
 
     (*env)->ReleaseStringUTFChars(env, jservice, service);
@@ -226,8 +226,8 @@ jint openPortForwarding(JNIEnv* env, jobject thiz, jint streamId, jstring jservi
     (*env)->ReleaseStringUTFChars(env, jport, port);
 
     if (pfId < 0) {
-        logE("Call ela_stream_open_port_forwarding API error");
-        setErrorCode(ela_get_error());
+        logE("Call carrier_stream_open_port_forwarding API error");
+        setErrorCode(carrier_get_error());
         return -1;
     }
 
@@ -249,11 +249,11 @@ jboolean closePortForwarding(JNIEnv* env, jobject thiz, jint streamId, jint port
     assert(streamId > 0);
     assert(portForwarding > 0);
 
-    rc = ela_stream_close_port_forwarding(getSession(env, thiz), streamId,
+    rc = carrier_stream_close_port_forwarding(getSession(env, thiz), streamId,
                                                       portForwarding);
     if (rc < 0) {
-        logE("Call ela_stream_close_port_forwarding API error");
-        setErrorCode(ela_get_error());
+        logE("Call carrier_stream_close_port_forwarding API error");
+        setErrorCode(carrier_get_error());
         return JNI_FALSE;
     }
     return JNI_TRUE;
