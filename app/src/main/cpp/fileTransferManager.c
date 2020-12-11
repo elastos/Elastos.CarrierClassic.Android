@@ -24,8 +24,8 @@
 #include <assert.h>
 #include <stdlib.h>
 #include <string.h>
-#include <ela_carrier.h>
-#include <ela_filetransfer.h>
+#include <carrier.h>
+#include <carrier_filetransfer.h>
 
 #include "log.h"
 #include "utils.h"
@@ -51,8 +51,8 @@ CallbackContext* getCallbackContext(JNIEnv* env, jobject thiz)
 }
 
 static
-void onFileTransferRequestCallback(ElaCarrier *carrier, const char *from,
-                                   const ElaFileTransferInfo *fileinfo, void *context)
+void onFileTransferRequestCallback(Carrier *carrier, const char *from,
+                                   const CarrierFileTransferInfo *fileinfo, void *context)
 {
     CallbackContext* cc = (CallbackContext*)context;
     int needDetach = 0;
@@ -111,7 +111,7 @@ bool callbackCtxSet(CallbackContext* hc, JNIEnv* env, jobject jcarrier, jobject 
 
     lclazz = (*env)->GetObjectClass(env, jhandler);
     if (!lclazz) {
-        setErrorCode(ELA_GENERAL_ERROR(ELAERR_LANGUAGE_BINDING));
+        setErrorCode(CARRIER_GENERAL_ERROR(ERROR_LANGUAGE_BINDING));
         return false;
     }
 
@@ -120,7 +120,7 @@ bool callbackCtxSet(CallbackContext* hc, JNIEnv* env, jobject jcarrier, jobject 
     gjhandler = (*env)->NewGlobalRef(env, jhandler);
 
     if (!gclazz || !gjcarrier || !gjhandler) {
-        setErrorCode(ELA_GENERAL_ERROR(ELAERR_OUT_OF_MEMORY));
+        setErrorCode(CARRIER_GENERAL_ERROR(ERROR_OUT_OF_MEMORY));
         goto errorExit;
     }
 
@@ -157,7 +157,7 @@ static
 jboolean fileTransferMgrInit(JNIEnv* env, jobject thiz, jobject jcarrier, jobject jhandler)
 {
     CallbackContext *hc = NULL;
-    ElaCarrier *carrier = NULL;
+    Carrier *carrier = NULL;
     int rc;
 
     assert(jcarrier);
@@ -165,10 +165,10 @@ jboolean fileTransferMgrInit(JNIEnv* env, jobject thiz, jobject jcarrier, jobjec
     carrier = getCarrier(env, jcarrier);
 
     if (!jhandler) {
-        rc = ela_filetransfer_init(carrier, NULL, NULL);
+        rc = carrier_filetransfer_init(carrier, NULL, NULL);
         if (rc < 0) {
-            logE("Call ela_filetransfer_init API error");
-            setErrorCode(ela_get_error());
+            logE("Call carrier_filetransfer_init API error");
+            setErrorCode(carrier_get_error());
             return JNI_FALSE;
         }
 
@@ -177,22 +177,22 @@ jboolean fileTransferMgrInit(JNIEnv* env, jobject thiz, jobject jcarrier, jobjec
 
     hc = malloc(sizeof(CallbackContext));
     if (!hc) {
-        setErrorCode(ELA_GENERAL_ERROR(ELAERR_OUT_OF_MEMORY));
+        setErrorCode(CARRIER_GENERAL_ERROR(ERROR_OUT_OF_MEMORY));
         return JNI_FALSE;
     }
     memset(hc, 0, sizeof(*hc));
 
     if (!callbackCtxSet(hc, env, jcarrier, jhandler)) {
         callbackCtxCleanup(hc, env);
-        setErrorCode(ELA_GENERAL_ERROR(ELAERR_LANGUAGE_BINDING));
+        setErrorCode(CARRIER_GENERAL_ERROR(ERROR_LANGUAGE_BINDING));
         return JNI_FALSE;
     }
 
-    rc = ela_filetransfer_init(carrier, onFileTransferRequestCallback, hc);
+    rc = carrier_filetransfer_init(carrier, onFileTransferRequestCallback, hc);
     if (rc < 0) {
         callbackCtxCleanup(hc, env);
-        logE("Call ela_filetransfer_init API error");
-        setErrorCode(ela_get_error());
+        logE("Call carrier_filetransfer_init API error");
+        setErrorCode(carrier_get_error());
         return JNI_FALSE;
     }
 
@@ -208,7 +208,7 @@ void fileTransferMgrCleanup(JNIEnv* env, jobject thiz, jobject jcarrier)
 
     assert(jcarrier);
 
-    ela_filetransfer_cleanup(getCarrier(env, jcarrier));
+    carrier_filetransfer_cleanup(getCarrier(env, jcarrier));
 
     if (hc) {
         callbackCtxCleanup(hc, env);

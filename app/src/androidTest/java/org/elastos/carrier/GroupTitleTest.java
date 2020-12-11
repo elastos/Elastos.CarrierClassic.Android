@@ -202,10 +202,10 @@ public class GroupTitleTest {
 			groupSyncher.await();
 
 			//Short title
-			final int ELA_MAX_GROUP_TITLE_LEN = 127;
+			final int CARRIER_MAX_GROUP_TITLE_LEN = 127;
 			//Long title
 			StringBuilder longTitle = new StringBuilder();
-			for (int i = 0; i < ELA_MAX_GROUP_TITLE_LEN; i++) {
+			for (int i = 0; i < CARRIER_MAX_GROUP_TITLE_LEN; i++) {
 				longTitle.append('L');
 			}
 			group.setTitle(longTitle.toString());

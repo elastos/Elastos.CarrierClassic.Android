@@ -23,8 +23,8 @@
 #include <stdlib.h>
 #include <assert.h>
 #include <jni.h>
-#include <ela_carrier.h>
-#include <ela_filetransfer.h>
+#include <carrier.h>
+#include <carrier_filetransfer.h>
 
 #include "utils.h"
 #include "log.h"
@@ -49,19 +49,19 @@ CallbackContext* callbackCtxCreate(JNIEnv* env, jobject jhandler)
 
     lclazz = (*env)->GetObjectClass(env, jhandler);
     if (!lclazz) {
-        setErrorCode(ELA_GENERAL_ERROR(ELAERR_LANGUAGE_BINDING));
+        setErrorCode(CARRIER_GENERAL_ERROR(ERROR_LANGUAGE_BINDING));
         return NULL;
     }
     gclazz   = (*env)->NewGlobalRef(env, lclazz);
     ghandler = (*env)->NewGlobalRef(env, jhandler);
     if (!gclazz || !ghandler) {
-        setErrorCode(ELA_GENERAL_ERROR(ELAERR_LANGUAGE_BINDING));
+        setErrorCode(CARRIER_GENERAL_ERROR(ERROR_LANGUAGE_BINDING));
         goto errorExit;
     }
 
     cc = (CallbackContext*)calloc(1, sizeof(*cc));
     if (!cc) {
-        setErrorCode(ELA_GENERAL_ERROR(ELAERR_OUT_OF_MEMORY));
+        setErrorCode(CARRIER_GENERAL_ERROR(ERROR_OUT_OF_MEMORY));
         goto errorExit;
     }
 
@@ -165,7 +165,7 @@ void receivedCallback(size_t length, uint64_t totalsz, void *context)
     detachJvm(env, needDetach);
 }
 
-static ElaFileProgressCallbacks callbacks = {
+static CarrierFileProgressCallbacks callbacks = {
     .state_changed = stateChangedCallback,
     .sent = sentCallback,
     .received = receivedCallback
@@ -180,14 +180,14 @@ jboolean easyfile_send(JNIEnv* env, jclass clazz, jobject jcarrier, jstring jto,
 
     to = (*env)->GetStringUTFChars(env, jto, NULL);
     if (!to) {
-        setErrorCode(ELA_GENERAL_ERROR(ELAERR_LANGUAGE_BINDING));
+        setErrorCode(CARRIER_GENERAL_ERROR(ERROR_LANGUAGE_BINDING));
         return JNI_FALSE;
     }
 
     filename = (*env)->GetStringUTFChars(env, jfilename, NULL);
     if (!to) {
         (*env)->ReleaseStringUTFChars(env, jto, to);
-        setErrorCode(ELA_GENERAL_ERROR(ELAERR_LANGUAGE_BINDING));
+        setErrorCode(CARRIER_GENERAL_ERROR(ERROR_LANGUAGE_BINDING));
         return JNI_FALSE;
     }
 
@@ -198,11 +198,11 @@ jboolean easyfile_send(JNIEnv* env, jclass clazz, jobject jcarrier, jstring jto,
         return JNI_FALSE;
     }
 
-    if (ela_file_send(getCarrier(env, jcarrier), to, filename, &callbacks, cc)) {
+    if (carrier_file_send(getCarrier(env, jcarrier), to, filename, &callbacks, cc)) {
         (*env)->ReleaseStringUTFChars(env, jto, to);
         (*env)->ReleaseStringUTFChars(env, jfilename, filename);
         callbackCtxCleanup(cc, env);
-        setErrorCode(ela_get_error());
+        setErrorCode(carrier_get_error());
         return JNI_FALSE;
     }
 
@@ -220,14 +220,14 @@ jboolean easyfile_recv(JNIEnv* env, jclass clazz, jobject jcarrier, jstring jfro
 
     from = (*env)->GetStringUTFChars(env, jfrom, NULL);
     if (!from) {
-        setErrorCode(ELA_GENERAL_ERROR(ELAERR_LANGUAGE_BINDING));
+        setErrorCode(CARRIER_GENERAL_ERROR(ERROR_LANGUAGE_BINDING));
         return JNI_FALSE;
     }
 
     filename = (*env)->GetStringUTFChars(env, jfilename, NULL);
     if (!from) {
         (*env)->ReleaseStringUTFChars(env, jfrom, from);
-        setErrorCode(ELA_GENERAL_ERROR(ELAERR_LANGUAGE_BINDING));
+        setErrorCode(CARRIER_GENERAL_ERROR(ERROR_LANGUAGE_BINDING));
         return JNI_FALSE;
     }
 
@@ -238,11 +238,11 @@ jboolean easyfile_recv(JNIEnv* env, jclass clazz, jobject jcarrier, jstring jfro
         return JNI_FALSE;
     }
 
-    if (ela_file_recv(getCarrier(env, jcarrier), from, filename, &callbacks, cc)) {
+    if (carrier_file_recv(getCarrier(env, jcarrier), from, filename, &callbacks, cc)) {
         (*env)->ReleaseStringUTFChars(env, jfrom, from);
         (*env)->ReleaseStringUTFChars(env, jfilename, filename);
         callbackCtxCleanup(cc, env);
-        setErrorCode(ela_get_error());
+        setErrorCode(carrier_get_error());
         return JNI_FALSE;
     }
 

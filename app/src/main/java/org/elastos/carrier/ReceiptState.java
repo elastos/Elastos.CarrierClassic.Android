@@ -40,7 +40,7 @@ public enum ReceiptState {
 	 * \~English
 	 * Message sent before not
 	 * Message send unsuccessfully. A specific error code can be
-	 * retrieved by calling ela_get_error().
+	 * retrieved by calling carrier_get_error().
 	 */
 	Error;
 

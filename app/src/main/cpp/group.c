@@ -25,7 +25,7 @@
 #include <stdint.h>
 #include <string.h>
 #include <stdlib.h>
-#include <ela_carrier.h>
+#include <carrier.h>
 #include "log.h"
 #include "utils.h"
 #include "carrierUtils.h"
@@ -35,23 +35,23 @@
 static
 jstring newGroup(JNIEnv* env, jclass clazz, jobject carrier)
 {
-    char groupid[ELA_MAX_ID_LEN + 1];
+    char groupid[CARRIER_MAX_ID_LEN + 1];
     jstring jgroupid;
     int rc;
 
     (void)clazz;
-    rc = ela_new_group(getCarrier(env, carrier), groupid, sizeof(groupid));
+    rc = carrier_new_group(getCarrier(env, carrier), groupid, sizeof(groupid));
     if (rc < 0) {
-        logE("Call ela_new_group API error");
-        setErrorCode(ela_get_error());
+        logE("Call carrier_new_group API error");
+        setErrorCode(carrier_get_error());
         return NULL;
     }
 
     jgroupid = (*env)->NewStringUTF(env, groupid);
     if (!jgroupid) {
         logE("Can not convert C-string(%s) to JAVA-String", groupid);
-        ela_leave_group(getCarrier(env, carrier), groupid);
-        setErrorCode(ELA_GENERAL_ERROR(ELAERR_LANGUAGE_BINDING));
+        carrier_leave_group(getCarrier(env, carrier), groupid);
+        setErrorCode(CARRIER_GENERAL_ERROR(ERROR_LANGUAGE_BINDING));
         return NULL;
     }
     return jgroupid;
@@ -68,15 +68,15 @@ jboolean leaveGroup(JNIEnv* env, jobject thiz, jobject carrier, jstring jgroupid
 
     groupid = (*env)->GetStringUTFChars(env, jgroupid, NULL);
     if (!groupid) {
-        setErrorCode(ELA_GENERAL_ERROR(ELAERR_OUT_OF_MEMORY));
+        setErrorCode(CARRIER_GENERAL_ERROR(ERROR_OUT_OF_MEMORY));
         return JNI_FALSE;
     }
 
-    rc = ela_leave_group(getCarrier(env, carrier), groupid);
+    rc = carrier_leave_group(getCarrier(env, carrier), groupid);
     (*env)->ReleaseStringUTFChars(env, jgroupid, groupid);
     if (rc < 0) {
-        logE("Call ela_delete_group API error");
-        setErrorCode(ela_get_error());
+        logE("Call carrier_delete_group API error");
+        setErrorCode(carrier_get_error());
         return JNI_FALSE;
     }
     return JNI_TRUE;
@@ -95,23 +95,23 @@ jboolean groupInvite(JNIEnv* env, jobject thiz, jobject carrier, jstring jgroupi
 
     groupid = (*env)->GetStringUTFChars(env, jgroupid, NULL);
     if (!groupid) {
-        setErrorCode(ELA_GENERAL_ERROR(ELAERR_OUT_OF_MEMORY));
+        setErrorCode(CARRIER_GENERAL_ERROR(ERROR_OUT_OF_MEMORY));
         return JNI_FALSE;
     }
 
     friendid = (*env)->GetStringUTFChars(env, jfriendid, NULL);
     if (!friendid) {
         (*env)->ReleaseStringUTFChars(env, jgroupid, groupid);
-        setErrorCode(ELA_GENERAL_ERROR(ELAERR_OUT_OF_MEMORY));
+        setErrorCode(CARRIER_GENERAL_ERROR(ERROR_OUT_OF_MEMORY));
         return JNI_FALSE;
     }
 
-    rc = ela_group_invite(getCarrier(env, carrier), groupid, friendid);
+    rc = carrier_group_invite(getCarrier(env, carrier), groupid, friendid);
     (*env)->ReleaseStringUTFChars(env, jgroupid, groupid);
     (*env)->ReleaseStringUTFChars(env, jfriendid, friendid);
     if (rc < 0) {
-        logE("Call ela_group_invite API error");
-        setErrorCode(ela_get_error());
+        logE("Call carrier_group_invite API error");
+        setErrorCode(carrier_get_error());
         return JNI_FALSE;
     }
     return JNI_TRUE;
@@ -124,7 +124,7 @@ jstring groupJoin(JNIEnv* env, jclass clazz, jobject carrier, jstring jfriendid,
     jbyte *cookie;
     jsize len;
     jstring jgroupid;
-    char groupid[ELA_MAX_ID_LEN + 1];
+    char groupid[CARRIER_MAX_ID_LEN + 1];
     int rc;
 
     (void)clazz;
@@ -133,7 +133,7 @@ jstring groupJoin(JNIEnv* env, jclass clazz, jobject carrier, jstring jfriendid,
 
     friendid = (*env)->GetStringUTFChars(env, jfriendid, NULL);
     if (!friendid) {
-        setErrorCode(ELA_GENERAL_ERROR(ELAERR_OUT_OF_MEMORY));
+        setErrorCode(CARRIER_GENERAL_ERROR(ERROR_OUT_OF_MEMORY));
         return JNI_FALSE;
     }
 
@@ -142,18 +142,18 @@ jstring groupJoin(JNIEnv* env, jclass clazz, jobject carrier, jstring jfriendid,
     assert(cookie);
     assert(len);
 
-    rc = ela_group_join(getCarrier(env, carrier), friendid, cookie, (size_t)len, groupid, sizeof(groupid));
+    rc = carrier_group_join(getCarrier(env, carrier), friendid, cookie, (size_t)len, groupid, sizeof(groupid));
     (*env)->ReleaseStringUTFChars(env, jfriendid, friendid);
     if (rc < 0) {
-        logE("Call ela_group_join API error");
-        setErrorCode(ela_get_error());
+        logE("Call carrier_group_join API error");
+        setErrorCode(carrier_get_error());
         return NULL;
     }
 
     jgroupid = (*env)->NewStringUTF(env, groupid);
     if (!jgroupid) {
         logE("Can not convert C-string(%s) to JAVA-String", groupid);
-        setErrorCode(ELA_GENERAL_ERROR(ELAERR_LANGUAGE_BINDING));
+        setErrorCode(CARRIER_GENERAL_ERROR(ERROR_LANGUAGE_BINDING));
         return NULL;
     }
     return jgroupid;
@@ -173,7 +173,7 @@ jboolean groupSendMessage(JNIEnv* env, jobject thiz, jobject carrier, jstring jg
 
     groupid = (*env)->GetStringUTFChars(env, jgroupid, NULL);
     if (!groupid) {
-        setErrorCode(ELA_GENERAL_ERROR(ELAERR_OUT_OF_MEMORY));
+        setErrorCode(CARRIER_GENERAL_ERROR(ERROR_OUT_OF_MEMORY));
         return JNI_FALSE;
     }
 
@@ -182,11 +182,11 @@ jboolean groupSendMessage(JNIEnv* env, jobject thiz, jobject carrier, jstring jg
     assert(msg);
     assert(len);
 
-    rc = ela_group_send_message(getCarrier(env, carrier), groupid, msg, (size_t)len);
+    rc = carrier_group_send_message(getCarrier(env, carrier), groupid, msg, (size_t)len);
     (*env)->ReleaseStringUTFChars(env, jgroupid, groupid);
     if (rc < 0) {
-        logE("Call ela_group_send_message API error");
-        setErrorCode(ela_get_error());
+        logE("Call carrier_group_send_message API error");
+        setErrorCode(carrier_get_error());
         return JNI_FALSE;
     }
     return JNI_TRUE;
@@ -196,7 +196,7 @@ static
 jstring groupGetTitle(JNIEnv* env, jobject thiz, jobject carrier, jstring jgroupid)
 {
     const char *groupid;
-    char title[ELA_MAX_GROUP_TITLE_LEN + 1];
+    char title[CARRIER_MAX_GROUP_TITLE_LEN + 1];
     jstring jtitle;
     int rc;
 
@@ -205,22 +205,22 @@ jstring groupGetTitle(JNIEnv* env, jobject thiz, jobject carrier, jstring jgroup
 
     groupid = (*env)->GetStringUTFChars(env, jgroupid, NULL);
     if (!groupid) {
-        setErrorCode(ELA_GENERAL_ERROR(ELAERR_OUT_OF_MEMORY));
+        setErrorCode(CARRIER_GENERAL_ERROR(ERROR_OUT_OF_MEMORY));
         return NULL;
     }
 
-    rc = ela_group_get_title(getCarrier(env, carrier), groupid, title, sizeof(title));
+    rc = carrier_group_get_title(getCarrier(env, carrier), groupid, title, sizeof(title));
     (*env)->ReleaseStringUTFChars(env, jgroupid, groupid);
     if (rc < 0) {
-        logE("Call ela_group_get_title API error");
-        setErrorCode(ela_get_error());
+        logE("Call carrier_group_get_title API error");
+        setErrorCode(carrier_get_error());
         return NULL;
     }
 
     jtitle = (*env)->NewStringUTF(env, title);
     if (!jtitle) {
         logE("Can not convert C-string(%s) to JAVA-String", title);
-        setErrorCode(ELA_GENERAL_ERROR(ELAERR_LANGUAGE_BINDING));
+        setErrorCode(CARRIER_GENERAL_ERROR(ERROR_LANGUAGE_BINDING));
         return NULL;
     }
     return jtitle;
@@ -239,30 +239,30 @@ jboolean groupSetTitle(JNIEnv* env, jobject thiz, jobject carrier, jstring jgrou
 
     groupid = (*env)->GetStringUTFChars(env, jgroupid, NULL);
     if (!groupid) {
-        setErrorCode(ELA_GENERAL_ERROR(ELAERR_OUT_OF_MEMORY));
+        setErrorCode(CARRIER_GENERAL_ERROR(ERROR_OUT_OF_MEMORY));
         return JNI_FALSE;
     }
 
     title = (*env)->GetStringUTFChars(env, jtitle, NULL);
     if (!title) {
         (*env)->ReleaseStringUTFChars(env, jgroupid, groupid);
-        setErrorCode(ELA_GENERAL_ERROR(ELAERR_OUT_OF_MEMORY));
+        setErrorCode(CARRIER_GENERAL_ERROR(ERROR_OUT_OF_MEMORY));
         return JNI_FALSE;
     }
 
-    rc = ela_group_set_title(getCarrier(env, carrier), groupid, title);
+    rc = carrier_group_set_title(getCarrier(env, carrier), groupid, title);
     (*env)->ReleaseStringUTFChars(env, jgroupid, groupid);
     (*env)->ReleaseStringUTFChars(env, jtitle, title);
     if (rc < 0) {
-        logE("Call ela_group_set_title API error");
-        setErrorCode(ela_get_error());
+        logE("Call carrier_group_set_title API error");
+        setErrorCode(carrier_get_error());
         return JNI_FALSE;
     }
     return JNI_TRUE;
 }
 
 static
-bool groupPeerIteratedCallback(const ElaGroupPeer *peer, void *context)
+bool groupPeerIteratedCallback(const CarrierGroupPeer *peer, void *context)
 {
     jobject jpeerInfo = NULL;
     jboolean result = JNI_FALSE;
@@ -315,21 +315,21 @@ jboolean groupGetPeers(JNIEnv* env, jobject thiz, jobject carrier, jstring jgrou
 
     groupid = (*env)->GetStringUTFChars(env, jgroupid, NULL);
     if (!groupid) {
-        setErrorCode(ELA_GENERAL_ERROR(ELAERR_OUT_OF_MEMORY));
+        setErrorCode(CARRIER_GENERAL_ERROR(ERROR_OUT_OF_MEMORY));
         return JNI_FALSE;
     }
 
-    rc = ela_group_get_peers(getCarrier(env, carrier), groupid,
+    rc = carrier_group_get_peers(getCarrier(env, carrier), groupid,
                              groupPeerIteratedCallback, (void*)argv);
     (*env)->ReleaseStringUTFChars(env, jgroupid, groupid);
     if (rc < 0) {
-        logE("Call ela_group_get_peers API error");
-        setErrorCode(ela_get_error());
+        logE("Call carrier_group_get_peers API error");
+        setErrorCode(carrier_get_error());
         return JNI_FALSE;
     }
     if (!javaErr) {
-        logE("Call ela_group_get_peers API error");
-        setErrorCode(ELA_GENERAL_ERROR(ELAERR_LANGUAGE_BINDING));
+        logE("Call carrier_group_get_peers API error");
+        setErrorCode(CARRIER_GENERAL_ERROR(ERROR_LANGUAGE_BINDING));
         return JNI_FALSE;
     }
     return JNI_TRUE;
@@ -340,7 +340,7 @@ jobject groupGetPeer(JNIEnv* env, jobject thiz, jobject carrier, jstring jgroupi
 {
     const char *groupid;
     const char *peerid;
-    ElaGroupPeer peerInfo;
+    CarrierGroupPeer peerInfo;
     jobject jpeerInfo;
     int rc;
 
@@ -350,30 +350,30 @@ jobject groupGetPeer(JNIEnv* env, jobject thiz, jobject carrier, jstring jgroupi
 
     groupid = (*env)->GetStringUTFChars(env, jgroupid, NULL);
     if (!groupid) {
-        setErrorCode(ELA_GENERAL_ERROR(ELAERR_OUT_OF_MEMORY));
+        setErrorCode(CARRIER_GENERAL_ERROR(ERROR_OUT_OF_MEMORY));
         return NULL;
     }
 
     peerid = (*env)->GetStringUTFChars(env, jpeerid, NULL);
     if (!peerid) {
         (*env)->ReleaseStringUTFChars(env, jgroupid, groupid);
-        setErrorCode(ELA_GENERAL_ERROR(ELAERR_OUT_OF_MEMORY));
+        setErrorCode(CARRIER_GENERAL_ERROR(ERROR_OUT_OF_MEMORY));
         return NULL;
     }
 
-    rc = ela_group_get_peer(getCarrier(env, carrier), groupid, peerid, &peerInfo);
+    rc = carrier_group_get_peer(getCarrier(env, carrier), groupid, peerid, &peerInfo);
     (*env)->ReleaseStringUTFChars(env, jgroupid, groupid);
     (*env)->ReleaseStringUTFChars(env, jpeerid, peerid);
     if (rc < 0) {
-        logE("Call ela_group_get_peer API error");
-        setErrorCode(ela_get_error());
+        logE("Call carrier_group_get_peer API error");
+        setErrorCode(carrier_get_error());
         return NULL;
     }
 
     rc = newJavaGroupPeerInfo(env, &peerInfo, &jpeerInfo);
     if (!rc) {
         logE("Construct Java GroupPeerInfo object error");
-        setErrorCode(ELA_GENERAL_ERROR(ELAERR_LANGUAGE_BINDING));
+        setErrorCode(CARRIER_GENERAL_ERROR(ERROR_LANGUAGE_BINDING));
         return NULL;
     }
     return jpeerInfo;

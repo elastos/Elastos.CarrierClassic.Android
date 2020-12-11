@@ -26,7 +26,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <arpa/inet.h>
-#include <ela_carrier.h>
+#include <carrier.h>
 #include "log.h"
 #include "utils.h"
 #include "carrierCookie.h"
@@ -42,7 +42,7 @@ jobject getGlobalExt(JNIEnv* env, jobject jext)
 }
 
 static
-void inviteCallback(ElaCarrier *carrier, const char *from,
+void inviteCallback(Carrier *carrier, const char *from,
                     const void *data, size_t len, void *context)
 {
     jobject gjext = (jobject)context;
@@ -100,14 +100,14 @@ jboolean carrierExtensionInit(JNIEnv* env, jobject thiz, jobject jcarrier)
 
     gjext = (*env)->NewGlobalRef(env, thiz);
     if (!gjext) {
-        setErrorCode(ELA_GENERAL_ERROR(ELAERR_LANGUAGE_BINDING));
+        setErrorCode(CARRIER_GENERAL_ERROR(ERROR_LANGUAGE_BINDING));
         return JNI_FALSE;
     }
 
     rc = extension_init(getCarrier(env, jcarrier), inviteCallback, gjext);
     if (rc < 0) {
         (*env)->DeleteGlobalRef(env, gjext);
-        setErrorCode(ela_get_error());
+        setErrorCode(carrier_get_error());
         return JNI_FALSE;
     }
 
@@ -116,7 +116,7 @@ jboolean carrierExtensionInit(JNIEnv* env, jobject thiz, jobject jcarrier)
 }
 
 static
-void inviteReplyCallback(ElaCarrier *carrier, const char *from,
+void inviteReplyCallback(Carrier *carrier, const char *from,
                          int status, const char *reason,
                          const void *data, size_t len, void *context)
 {
@@ -177,14 +177,14 @@ jboolean inviteFriend(JNIEnv* env, jobject thiz, jobject jcarrier, jstring jto,
 
     to = (*env)->GetStringUTFChars(env, jto, NULL);
     if (!to) {
-        setErrorCode(ELA_GENERAL_ERROR(ELAERR_OUT_OF_MEMORY));
+        setErrorCode(CARRIER_GENERAL_ERROR(ERROR_OUT_OF_MEMORY));
         return JNI_FALSE;
     }
 
     data = (*env)->GetStringUTFChars(env, jdata, NULL);
     if (!data) {
         (*env)->ReleaseStringUTFChars(env, jto, to);
-        setErrorCode(ELA_GENERAL_ERROR(ELAERR_OUT_OF_MEMORY));
+        setErrorCode(CARRIER_GENERAL_ERROR(ERROR_OUT_OF_MEMORY));
         return JNI_FALSE;
     }
 
@@ -192,7 +192,7 @@ jboolean inviteFriend(JNIEnv* env, jobject thiz, jobject jcarrier, jstring jto,
     if (!gjhandler) {
         (*env)->ReleaseStringUTFChars(env, jdata, data);
         (*env)->ReleaseStringUTFChars(env, jto, to);
-        setErrorCode(ELA_GENERAL_ERROR(ELAERR_LANGUAGE_BINDING));
+        setErrorCode(CARRIER_GENERAL_ERROR(ERROR_LANGUAGE_BINDING));
         return JNI_FALSE;
     }
 
@@ -203,7 +203,7 @@ jboolean inviteFriend(JNIEnv* env, jobject thiz, jobject jcarrier, jstring jto,
     if (rc < 0)  {
         logE("Call extension_invite_friend API error");
         (*env)->DeleteGlobalRef(env, gjhandler);
-        setErrorCode(ela_get_error());
+        setErrorCode(carrier_get_error());
         return JNI_FALSE;
     }
 
@@ -225,7 +225,7 @@ jboolean replyFriend(JNIEnv* env, jobject thiz, jobject jcarrier, jstring jto,
 
     to = (*env)->GetStringUTFChars(env, jto, NULL);
     if (!to) {
-        setErrorCode(ELA_GENERAL_ERROR(ELAERR_OUT_OF_MEMORY));
+        setErrorCode(CARRIER_GENERAL_ERROR(ERROR_OUT_OF_MEMORY));
         return JNI_FALSE;
     }
 
@@ -237,7 +237,7 @@ jboolean replyFriend(JNIEnv* env, jobject thiz, jobject jcarrier, jstring jto,
 
     if (!reason && !data) {
         (*env)->ReleaseStringUTFChars(env, jto, to);
-        setErrorCode(ELA_GENERAL_ERROR(ELAERR_OUT_OF_MEMORY));
+        setErrorCode(CARRIER_GENERAL_ERROR(ERROR_OUT_OF_MEMORY));
         return JNI_FALSE;
     }
 
@@ -250,7 +250,7 @@ jboolean replyFriend(JNIEnv* env, jobject thiz, jobject jcarrier, jstring jto,
 
     if (rc < 0) {
         logE("Call extension_reply_friend_invite API error");
-        setErrorCode(ela_get_error());
+        setErrorCode(carrier_get_error());
         return JNI_FALSE;
     }
     return JNI_TRUE;
@@ -259,7 +259,7 @@ jboolean replyFriend(JNIEnv* env, jobject thiz, jobject jcarrier, jstring jto,
 static
 jobject getTurnServer(JNIEnv* env, jobject thiz, jobject jcarrier)
 {
-    ElaTurnServer server;
+    CarrierTurnServer server;
     jobject jsinfo = NULL;
     jstring jserver = NULL;
     jstring jusername = NULL;
@@ -267,40 +267,40 @@ jobject getTurnServer(JNIEnv* env, jobject thiz, jobject jcarrier)
     jstring jrealm = NULL;
     int rc;
 
-    rc = ela_get_turn_server(getCarrier(env, jcarrier), &server);
+    rc = carrier_get_turn_server(getCarrier(env, jcarrier), &server);
     if (rc < 0) {
         logE("CarrierExtension::carrier field not found");
-        setErrorCode(ela_get_error());
+        setErrorCode(carrier_get_error());
         goto finally;
     }
 
     jserver = (*env)->NewStringUTF(env, server.server);
     if (!jserver) {
-        setErrorCode(ELA_GENERAL_ERROR(ELAERR_LANGUAGE_BINDING));
+        setErrorCode(CARRIER_GENERAL_ERROR(ERROR_LANGUAGE_BINDING));
         goto finally;
     }
 
     jusername = (*env)->NewStringUTF(env, server.username);
     if (!jusername) {
-        setErrorCode(ELA_GENERAL_ERROR(ELAERR_LANGUAGE_BINDING));
+        setErrorCode(CARRIER_GENERAL_ERROR(ERROR_LANGUAGE_BINDING));
         goto finally;
     }
 
     jpassword = (*env)->NewStringUTF(env, server.password);
     if (!jpassword) {
-        setErrorCode(ELA_GENERAL_ERROR(ELAERR_LANGUAGE_BINDING));
+        setErrorCode(CARRIER_GENERAL_ERROR(ERROR_LANGUAGE_BINDING));
         goto finally;
     }
 
     jrealm = (*env)->NewStringUTF(env, server.realm);
     if (!jrealm) {
-        setErrorCode(ELA_GENERAL_ERROR(ELAERR_LANGUAGE_BINDING));
+        setErrorCode(CARRIER_GENERAL_ERROR(ERROR_LANGUAGE_BINDING));
         goto finally;
     }
 
     if (!newJavaTurnServerInfo(env, jserver, jusername,
                                jpassword, jrealm, server.port, &jsinfo))
-        setErrorCode(ELA_GENERAL_ERROR(ELAERR_LANGUAGE_BINDING));
+        setErrorCode(CARRIER_GENERAL_ERROR(ERROR_LANGUAGE_BINDING));
 
 finally:
     if (jserver) (*env)->DeleteLocalRef(env, jserver);
