@@ -24,14 +24,14 @@
 #define __FILE_TRANSFER_UTILS_H__
 
 #include <jni.h>
-#include "ela_carrier.h"
-#include "ela_filetransfer.h"
+#include "carrier.h"
+#include "carrier_filetransfer.h"
 
-int newNativeFileTransferInfo(JNIEnv* env, const jobject jfileinfo, ElaFileTransferInfo* fileinfo);
+int newNativeFileTransferInfo(JNIEnv* env, const jobject jfileinfo, CarrierFileTransferInfo* fileinfo);
 
 int newJavaFileTransferState(JNIEnv* env, FileTransferConnection state, jobject* jstate);
 
-int newJavaFileTransferInfo(JNIEnv* env, const ElaFileTransferInfo* fileinfo, jobject* jFileTransferInfo);
+int newJavaFileTransferInfo(JNIEnv* env, const CarrierFileTransferInfo* fileinfo, jobject* jFileTransferInfo);
 
 int newJavaFileTransfer(JNIEnv* env, jobject* jFileTransfer);
 

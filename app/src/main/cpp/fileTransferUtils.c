@@ -22,13 +22,13 @@
 
 #include <jni.h>
 #include <stdlib.h>
-#include <ela_filetransfer.h>
+#include <carrier_filetransfer.h>
 #include <string.h>
 
 #include "log.h"
 #include "utilsExt.h"
 
-int newNativeFileTransferInfo(JNIEnv* env, const jobject jfileinfo, ElaFileTransferInfo* fileinfo)
+int newNativeFileTransferInfo(JNIEnv* env, const jobject jfileinfo, CarrierFileTransferInfo* fileinfo)
 {
     jclass clazz;
 
@@ -101,7 +101,7 @@ int newJavaFileTransfer(JNIEnv* env, jobject* jFileTransfer)
     return 1;
 }
 
-int newJavaFileTransferInfo(JNIEnv* env, const ElaFileTransferInfo* fileinfo, jobject* jFileTransferInfo)
+int newJavaFileTransferInfo(JNIEnv* env, const CarrierFileTransferInfo* fileinfo, jobject* jFileTransferInfo)
 {
     const char* clazzName = "org/elastos/carrier/filetransfer/FileTransferInfo";
     jclass clazz;

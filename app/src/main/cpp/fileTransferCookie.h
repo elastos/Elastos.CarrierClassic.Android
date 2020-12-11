@@ -25,19 +25,19 @@
 
 #include <jni.h>
 #include <stdint.h>
-#include <ela_filetransfer.h>
+#include <carrier_filetransfer.h>
 
 #include "utilsExt.h"
 
 static inline
-ElaFileTransfer* getFileTransfer(JNIEnv* env, jobject thiz)
+CarrierFileTransfer* getFileTransfer(JNIEnv* env, jobject thiz)
 {
     uint64_t ctxt = 0;
-    return getLongField(env, thiz, "nativeCookie", &ctxt) ? (ElaFileTransfer*)ctxt : NULL;
+    return getLongField(env, thiz, "nativeCookie", &ctxt) ? (CarrierFileTransfer*)ctxt : NULL;
 }
 
 static inline
-void setFileTransferCookie(JNIEnv* env, jobject thiz, ElaFileTransfer* filetransfer)
+void setFileTransferCookie(JNIEnv* env, jobject thiz, CarrierFileTransfer* filetransfer)
 {
     setLongField(env, thiz, "nativeCookie", (uint64_t)filetransfer);
 }

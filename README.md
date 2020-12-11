@@ -96,8 +96,8 @@ $ cmake -DANDROID_ABI=YOUR-TARGET-ARCHITECTURE -DANDROID_NDK_HOME=YOUR-ANDROID-N
 For each architecture, the distribution package will contain the following files:
 ```
 libcrystal.so
-libelacarrier.so
-libelasession.so
+libcarrier.so
+libcarriersession.so
 ```
 
 These shared native libraries will have to be later imported into the Android project based on their
@@ -140,25 +140,25 @@ Your project should have following directory structure:
 ```
 app/native-dist
    |--include
-       |--ela_carrier.h
-       |--ela_session.h
+       |--carrier.h
+       |--carrier_session.h
    |--lib
        |--armeabi-v7a
           |--libcrystal.so
-          |--libelacarrier.so
-          |--libelasession.so
+          |--libcarrier.so
+          |--libcarriersession.so
        |--arm64-v8a
           |--libcrystal.so
-          |--libelacarrier.so
-          |--libelasession.so
+          |--libcarrier.so
+          |--libcarriersession.so
        |--x86
           |--libcrystal.so
-          |--libelacarrier.so
-          |--libelasession.so
+          |--libcarrier.so
+          |--libcarriersession.so
        |--x86-64
           |--libcrystal.so
-          |--libelacarrier.so
-          |--libelasession.so
+          |--libcarrier.so
+          |--libcarriersession.so
 ```
 
 The files under the subdirectory **"app/native-dist/include"** are public header files and are already exported from Carrier native.

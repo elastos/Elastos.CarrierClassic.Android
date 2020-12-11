@@ -22,13 +22,13 @@
 
 #include <jni.h>
 #include <stdlib.h>
-#include <ela_session.h>
+#include <carrier_session.h>
 
 #include "sessionUtils.h"
 #include "sessionCookie.h"
 #include "log.h"
 
-int newJavaStreamState(JNIEnv* env, ElaStreamState state, jobject* jstate)
+int newJavaStreamState(JNIEnv* env, CarrierStreamState state, jobject* jstate)
 {
     const char* clazzName = "org/elastos/carrier/session/StreamState";
     jclass clazz = findClass(env, clazzName);
@@ -49,7 +49,7 @@ int newJavaStreamState(JNIEnv* env, ElaStreamState state, jobject* jstate)
     return 1;
 }
 
-int getNativeStreamType(JNIEnv* env, jobject jjtype, ElaStreamType* type)
+int getNativeStreamType(JNIEnv* env, jobject jjtype, CarrierStreamType* type)
 {
     const char* clazzName = "org/elastos/carrier/session/StreamType";
     jclass clazz = (*env)->FindClass(env, clazzName);
@@ -65,11 +65,11 @@ int getNativeStreamType(JNIEnv* env, jobject jjtype, ElaStreamType* type)
         return 0;
     }
 
-    *type = (ElaStreamType)value;
+    *type = (CarrierStreamType)value;
     return 1;
 }
 
-int newJavaSession(JNIEnv* env, ElaSession* session, jobject jto, jobject* jsession)
+int newJavaSession(JNIEnv* env, CarrierSession* session, jobject jto, jobject* jsession)
 {
     const char* clazzName = "org/elastos/carrier/session/Session";
     jclass clazz = (*env)->FindClass(env, clazzName);
@@ -195,7 +195,7 @@ int newInetSocketAddress(JNIEnv *env, const char *host, int port, jobject* jsock
 }
 
 static
-int newJavaAddresInfo(JNIEnv *env, ElaAddressInfo *info, jobject *jaddrInfo)
+int newJavaAddresInfo(JNIEnv *env, CarrierAddressInfo *info, jobject *jaddrInfo)
 {
     const char* clazzName = "org/elastos/carrier/session/AddressInfo";
     jclass clazz = (*env)->FindClass(env, clazzName);
@@ -264,7 +264,7 @@ int newJavaAddresInfo(JNIEnv *env, ElaAddressInfo *info, jobject *jaddrInfo)
     return 1;
 }
 
-int setJavaTransportInfo(JNIEnv *env, jobject jtransport, ElaTransportInfo *info)
+int setJavaTransportInfo(JNIEnv *env, jobject jtransport, CarrierTransportInfo *info)
 {
     jclass clazz = (*env)->GetObjectClass(env, jtransport);
     if (!clazz) {

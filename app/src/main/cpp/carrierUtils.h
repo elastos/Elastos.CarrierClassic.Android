@@ -24,7 +24,7 @@
 #define __CARRIER_UTILS_H__
 
 #include <jni.h>
-#include "ela_carrier.h"
+#include "carrier.h"
 
 typedef struct BootstrapHelper {
     char *ipv4;
@@ -54,21 +54,21 @@ int getOptionsHelper(JNIEnv* env, jobject jopts, OptionsHelper* opts);
 
 void cleanupOptionsHelper(OptionsHelper* opts);
 
-int getNativeUserInfo(JNIEnv* env, jobject juserInfo, ElaUserInfo* ui);
+int getNativeUserInfo(JNIEnv* env, jobject juserInfo, CarrierUserInfo* ui);
 
-int newJavaUserInfo(JNIEnv* env, const ElaUserInfo* userInfo, jobject* juserInfo);
+int newJavaUserInfo(JNIEnv* env, const CarrierUserInfo* userInfo, jobject* juserInfo);
 
-int newJavaFriendInfo(JNIEnv* env, const ElaFriendInfo* friendInfo, jobject* jfriendInfo);
+int newJavaFriendInfo(JNIEnv* env, const CarrierFriendInfo* friendInfo, jobject* jfriendInfo);
 
-int newJavaConnectionStatus(JNIEnv* env, ElaConnectionStatus status, jobject* jstatus);
+int newJavaConnectionStatus(JNIEnv* env, CarrierConnectionStatus status, jobject* jstatus);
 
-int newJavaPresenceStatus(JNIEnv* env, ElaPresenceStatus presence, jobject* jpresence);
+int newJavaPresenceStatus(JNIEnv* env, CarrierPresenceStatus presence, jobject* jpresence);
 
-int newNativePresenceStatus(JNIEnv *env, jobject jpresence, ElaPresenceStatus *presence);
+int newNativePresenceStatus(JNIEnv *env, jobject jpresence, CarrierPresenceStatus *presence);
 
-int newJavaGroupPeerInfo(JNIEnv* env, const ElaGroupPeer* peer, jobject* jpeerInfo);
+int newJavaGroupPeerInfo(JNIEnv* env, const CarrierGroupPeer* peer, jobject* jpeerInfo);
 
-int newJavaReceiptState(JNIEnv* env, ElaReceiptState state, jobject* jstate);
+int newJavaReceiptState(JNIEnv* env, CarrierReceiptState state, jobject* jstate);
 
 int newJavaDate(JNIEnv* env, int64_t timestamp, jobject* jdate);
 

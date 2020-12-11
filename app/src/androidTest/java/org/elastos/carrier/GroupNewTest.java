@@ -113,9 +113,9 @@ public class GroupNewTest {
 				group.leave();
 			}
 			catch (GeneralException e) {
-				final int ELAERR_NOT_EXIST = 0x0A;
+				final int ERROR_NOT_EXIST = 0x0A;
 				assertEquals(CarrierException.FACILITY_GENERAL, e.getFacility());
-				assertEquals(ELAERR_NOT_EXIST, e.getCode());
+				assertEquals(ERROR_NOT_EXIST, e.getCode());
 			}
 		}
 		catch (CarrierException e) {

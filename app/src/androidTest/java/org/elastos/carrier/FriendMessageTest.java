@@ -143,7 +143,7 @@ public class FriendMessageTest {
 			assertTrue(TestHelper.addFriendAnyway(carrier, robot, commonSyncher, friendConnSyncher, context));
 			assertTrue(carrier.isFriend(robot.getNodeid()));
 			String fillData = "01234567";
-			int bufferPkgCnt = Carrier.ELA_MAX_APP_BULKMSG_LEN / fillData.length();
+			int bufferPkgCnt = Carrier.CARRIER_MAX_USER_NAME_LEN / fillData.length();
 			StringBuffer sb = new StringBuffer();
 			for(int idx = 0; idx < bufferPkgCnt; idx++) {
 				sb.append(fillData);
@@ -174,7 +174,7 @@ public class FriendMessageTest {
 			assertTrue(carrier.isFriend(robot.getNodeid()));
 
 			String fillData = "01234567";
-			int bufferPkgCnt = Carrier.ELA_MAX_APP_BULKMSG_LEN / fillData.length();
+			int bufferPkgCnt = Carrier.CARRIER_MAX_USER_NAME_LEN / fillData.length();
 			StringBuffer sb = new StringBuffer();
 			for(int idx = 0; idx < bufferPkgCnt; idx++) {
 				sb.append(fillData);

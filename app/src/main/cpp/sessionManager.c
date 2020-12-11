@@ -24,8 +24,8 @@
 #include <assert.h>
 #include <stdlib.h>
 #include <string.h>
-#include <ela_carrier.h>
-#include <ela_session.h>
+#include <carrier.h>
+#include <carrier_session.h>
 
 #include "log.h"
 #include "utils.h"
@@ -49,7 +49,7 @@ CallbackContext* getCallbackContext(JNIEnv* env, jobject thiz)
 }
 
 static
-void onSessionRequestCallback(ElaCarrier* carrier, const char* from, const char *bundle,
+void onSessionRequestCallback(Carrier* carrier, const char* from, const char *bundle,
                               const char* sdp, size_t len, void* context)
 {
     CallbackContext* cc = (CallbackContext*)context;
@@ -108,7 +108,7 @@ bool callbackCtxtSet(CallbackContext* hc, JNIEnv* env, jobject jcarrier, jobject
 
     lclazz = (*env)->GetObjectClass(env, jhandler);
     if (!lclazz) {
-        setErrorCode(ELA_GENERAL_ERROR(ELAERR_LANGUAGE_BINDING));
+        setErrorCode(CARRIER_GENERAL_ERROR(ERROR_LANGUAGE_BINDING));
         return false;
     }
 
@@ -117,7 +117,7 @@ bool callbackCtxtSet(CallbackContext* hc, JNIEnv* env, jobject jcarrier, jobject
     gjhandler = (*env)->NewGlobalRef(env, jhandler);
 
     if (!gclazz || !gjcarrier || !gjhandler) {
-        setErrorCode(ELA_GENERAL_ERROR(ELAERR_OUT_OF_MEMORY));
+        setErrorCode(CARRIER_GENERAL_ERROR(ERROR_OUT_OF_MEMORY));
         goto errorExit;
     }
 
@@ -154,17 +154,17 @@ static
 jboolean sessionMgrInit(JNIEnv* env, jobject thiz, jobject jcarrier, jobject jhandler)
 {
     CallbackContext *hc = NULL;
-    ElaCarrier *carrier = NULL;
+    Carrier *carrier = NULL;
     int rc;
 
     assert(jcarrier);
 
     carrier = getCarrier(env, jcarrier);
 
-    rc = ela_session_init(carrier);
+    rc = carrier_session_init(carrier);
     if (rc < 0) {
-        logE("Call ela_session_init API error");
-        setErrorCode(ela_get_error());
+        logE("Call carrier_session_init API error");
+        setErrorCode(carrier_get_error());
         return JNI_FALSE;
     }
 
@@ -173,25 +173,25 @@ jboolean sessionMgrInit(JNIEnv* env, jobject thiz, jobject jcarrier, jobject jha
 
     hc = malloc(sizeof(CallbackContext));
     if (!hc) {
-        ela_session_cleanup(carrier);
-        setErrorCode(ELA_GENERAL_ERROR(ELAERR_OUT_OF_MEMORY));
+        carrier_session_cleanup(carrier);
+        setErrorCode(CARRIER_GENERAL_ERROR(ERROR_OUT_OF_MEMORY));
         return JNI_FALSE;
     }
     memset(hc, 0, sizeof(*hc));
 
     if (!callbackCtxtSet(hc, env, jcarrier, jhandler)) {
         callbackCtxtCleanup(hc, env);
-        ela_session_cleanup(carrier);
-        setErrorCode(ELA_GENERAL_ERROR(ELAERR_LANGUAGE_BINDING));
+        carrier_session_cleanup(carrier);
+        setErrorCode(CARRIER_GENERAL_ERROR(ERROR_LANGUAGE_BINDING));
         return JNI_FALSE;
     }
 
-    rc = ela_session_set_callback(carrier, NULL, onSessionRequestCallback, hc);
+    rc = carrier_session_set_callback(carrier, NULL, onSessionRequestCallback, hc);
     if (rc < 0) {
         callbackCtxtCleanup(hc, env);
-        ela_session_cleanup(carrier);
-        logE("Call ela_session_set_callback API error");
-        setErrorCode(ela_get_error());
+        carrier_session_cleanup(carrier);
+        logE("Call carrier_session_set_callback API error");
+        setErrorCode(carrier_get_error());
         return JNI_FALSE;
     }
 
@@ -212,14 +212,14 @@ void sessionMgrCleanup(JNIEnv* env, jobject thiz, jobject jcarrier)
         setLongField(env, thiz, "nativeCookie", 0);
     }
 
-    ela_session_cleanup(getCarrier(env, jcarrier));
+    carrier_session_cleanup(getCarrier(env, jcarrier));
 }
 
 static
 jobject createSession(JNIEnv* env, jclass clazz, jobject jcarrier, jstring jto)
 {
     const char *to;
-    ElaSession *session;
+    CarrierSession *session;
     jobject jsession;
 
     assert(jcarrier);
@@ -227,21 +227,21 @@ jobject createSession(JNIEnv* env, jclass clazz, jobject jcarrier, jstring jto)
 
     to = (*env)->GetStringUTFChars(env, jto, NULL);
     if (!to) {
-        setErrorCode(ELA_GENERAL_ERROR(ELAERR_LANGUAGE_BINDING));
+        setErrorCode(CARRIER_GENERAL_ERROR(ERROR_LANGUAGE_BINDING));
         return NULL;
     }
 
-    session = ela_session_new(getCarrier(env, jcarrier), to);
+    session = carrier_session_new(getCarrier(env, jcarrier), to);
     (*env)->ReleaseStringUTFChars(env, jto, to);
     if (!session) {
-        logE("Call ela_session_new API error");
-        setErrorCode(ela_get_error());
+        logE("Call carrier_session_new API error");
+        setErrorCode(carrier_get_error());
         return NULL;
     }
 
     if (!newJavaSession(env, session, jto, &jsession)) {
-        ela_session_close(session);
-        setErrorCode(ELA_GENERAL_ERROR(ELAERR_LANGUAGE_BINDING));
+        carrier_session_close(session);
+        setErrorCode(CARRIER_GENERAL_ERROR(ERROR_LANGUAGE_BINDING));
         return NULL;
     }
 

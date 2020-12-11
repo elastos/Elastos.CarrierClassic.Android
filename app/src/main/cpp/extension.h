@@ -27,25 +27,25 @@
 #include <stdbool.h>
 #include <sys/types.h>
 
-#include <ela_carrier.h>
+#include <carrier.h>
 
-typedef void ExtensionInviteCallback(ElaCarrier *carrier, const char *from,
+typedef void ExtensionInviteCallback(Carrier *carrier, const char *from,
                                      const void *data, size_t len, void *context);
 
-int extension_init(ElaCarrier *carrier, ExtensionInviteCallback *callback, void *context);
+int extension_init(Carrier *carrier, ExtensionInviteCallback *callback, void *context);
 
-void extension_cleanup(ElaCarrier *carrier);
+void extension_cleanup(Carrier *carrier);
 
-typedef void ExtensionInviteReplyCallback(ElaCarrier *carrier, const char *from,
+typedef void ExtensionInviteReplyCallback(Carrier *carrier, const char *from,
                                           int status, const char *reason,
                                           const void *data, size_t len, void *context);
 
-int extension_invite_friend(ElaCarrier *carrier, const char *to,
+int extension_invite_friend(Carrier *carrier, const char *to,
                             const void *data, size_t len,
                             ExtensionInviteReplyCallback *callback,
                             void *context);
 
-int extension_reply_friend_invite(ElaCarrier *carrier, const char *to,
+int extension_reply_friend_invite(Carrier *carrier, const char *to,
                                   int status, const char *reason,
                                   const void *data, size_t len);
 
