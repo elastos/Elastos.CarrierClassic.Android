@@ -373,7 +373,6 @@ public class Carrier {
 	private native boolean accept_friend(String userId);
 	private native boolean remove_friend(String userId);
 
-	private native int send_message(String to, byte[] message);
 	private native long send_message_with_receipt(String to, byte[] message,
 												  FriendMessageReceiptHandler handler);
 	private native boolean friend_invite(String to, String data,
@@ -876,66 +875,6 @@ public class Carrier {
 			throw CarrierException.fromErrorCode(get_error_code());
 
 		Log.d(TAG, "Friend " + userId + " was removed");
-	}
-
-	/**
-	 * Send a message to a friend.
-	 *
-	 * The message length may not exceed CARRIER_MAX_USER_NAME_LEN, and message itself
-	 * should be text-formatted. Larger messages must be split by application
-	 * and sent as separate messages. Other nodes can reassemble the fragments.
-	 *
-	 * @param
-	 * 		to 			The target id
-	 * @param
-	 * 		message		The message content defined by application
-	 *
-	 * @return
-	 *		Return boolean value whether this message sent as online message or
-	 *		offline message. The value of true means the message was sent as
-	 *		online message, otherwise as offline message.
-	 *
-	 * @throws IllegalArgumentException illegal exception.
-	 * @throws CarrierException  carrier exception.
-	 */
-    public boolean sendFriendMessage(String to, String message) throws CarrierException {
-		if (to == null || to.length() == 0 ||
-				message == null || message.length() == 0 || message.length() >= CARRIER_MAX_USER_NAME_LEN)
-			throw new IllegalArgumentException();
-
-		return sendFriendMessage(to, message.getBytes(UTF8));
-	}
-
-	/**
-	 * Send a message to a friend.
-	 *
-	 * The message length may not exceed CARRIER_MAX_USER_NAME_LEN, and message itself
-	 * should be text-formatted. Larger messages must be split by application
-	 * and sent as separate messages. Other nodes can reassemble the fragments.
-	 *
-	 * @param
-	 * 		to 			The target id
-	 * @param
-	 * 		message		The message content defined by application
-	 *
-	 * @return
-	 *		Return boolean value whether this message sent as online message or
-	 *		offline message. The value of true means the message was sent as
-	 *		online message, otherwise as offline message.
-	 *
-	 * @throws IllegalArgumentException illegal exception.
-	 * @throws CarrierException  carrier exception.
-	 */
-	public boolean sendFriendMessage(String to, byte[] message) throws CarrierException {
-		if (to == null || to.length() == 0 || message == null || message.length == 0)
-			throw new IllegalArgumentException();
-
-		int ret = send_message(to, message);
-		if (ret < 0)
-			throw CarrierException.fromErrorCode(get_error_code());
-
-		Log.d(TAG, "Send " + message.length + " bytes message to friend " + to);
-		return (ret == 0);
 	}
 
 	/**

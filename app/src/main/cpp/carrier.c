@@ -619,40 +619,6 @@ jboolean removeFriend(JNIEnv* env, jobject thiz, jstring jfriendId)
 }
 
 static
-jint sendMessage(JNIEnv* env, jobject thiz, jstring jto, jbyteArray jmsg)
-{
-    const char *to;
-    jbyte *msg;
-    jsize len;
-    int rc;
-    bool is_offline;
-
-    assert(jto);
-    assert(jmsg);
-
-    to = (*env)->GetStringUTFChars(env, jto, NULL);
-    if (!to) {
-        setErrorCode(CARRIER_GENERAL_ERROR(ERROR_OUT_OF_MEMORY));
-        return -1;
-    }
-
-    msg = (*env)->GetByteArrayElements(env, jmsg, NULL);
-    len = (*env)->GetArrayLength(env, jmsg);
-    assert(msg);
-    assert(len);
-
-    rc = carrier_send_friend_message(getCarrier(env, thiz), to, msg, (size_t)len, NULL, NULL, NULL);
-    (*env)->ReleaseStringUTFChars(env, jto, to);
-
-    if (rc < 0) {
-        setErrorCode(carrier_get_error());
-        return -1;
-    }
-
-    return (is_offline ? 1 : 0);
-}
-
-static
 void messageReceiptCallback(uint32_t msgid, CarrierReceiptState state, void *context)
 {
     jobject jstate;
@@ -926,7 +892,6 @@ static JNINativeMethod gMethods[] = {
         {"add_friend",         "("_J("String;")_J("String;)Z"),    (void *) addFriend          },
         {"accept_friend",      "("_J("String;)Z"),                 (void *) acceptFriend       },
         {"remove_friend",      "("_J("String;)Z"),                 (void *) removeFriend       },
-        {"send_message",       "("_J("String;[B)I"),               (void *) sendMessage        },
         {"send_message_with_receipt", "("_J("String;[B")_W("FriendMessageReceiptHandler;)J"),     \
                                                                    (void *) sendMessageWithReceipt },
         {"friend_invite",      "("_J("String;")_J("String;")_W("FriendInviteResponseHandler;)Z"), \
