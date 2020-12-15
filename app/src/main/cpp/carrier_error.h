@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Elastos Foundation
+ * Copyright (c) 2020 Elastos Foundation
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -20,8 +20,8 @@
  * SOFTWARE.
  */
 
-#ifndef __CARRIER_TURNSERVER_H__
-#define __CARRIER_TURNSERVER_H__
+#ifndef __ELASTOS_CARRIER_ERROR_H__
+#define __ELASTOS_CARRIER_ERROR_H__
 
 #include "carrier.h"
 
@@ -29,24 +29,33 @@
 extern "C" {
 #endif
 
-#define CARRIER_MAX_TURN_SERVER_LEN         63
-#define CARRIER_MAX_TURN_USERNAME_LEN       127
-#define CARRIER_MAX_TURN_PASSWORD_LEN       63
-#define CARRIER_MAX_TURN_REALM_LEN          127
-
-typedef struct CarrierTurnServer {
-    char server[CARRIER_MAX_TURN_SERVER_LEN + 1];
-    uint16_t port;
-    char username[CARRIER_MAX_TURN_USERNAME_LEN + 1];
-    char password[CARRIER_MAX_TURN_PASSWORD_LEN + 1];
-    char realm[CARRIER_MAX_TURN_REALM_LEN + 1];
-} CarrierTurnServer;
-
+/**
+ * \~English
+ * Set carrier last error code.
+ *
+ * @param
+ *      err         [in] The error code to be set.
+ */
 CARRIER_API
-int carrier_get_turn_server(Carrier *carrier, CarrierTurnServer *turn_server);
+void carrier_set_error(int error);
+
+typedef int (*strerror_t)(int errnum, char *, size_t);
+
+/**
+ * \~Egnlish
+ * register an customized error processing routine for specific error facility
+ *
+ * @param
+ *      facility    [in] facility
+ *      strerr      [in] the routine to process error.
+ * @return
+ *      return 0 on success, otherwise return -1.
+ */
+CARRIER_API
+int carrier_register_strerror(int facility, strerror_t strerr);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif // __CARRIER_TURNSERVER_H__
+#endif /* __ELASTOS_CARRIER_ERROR_H__ */
