@@ -20,11 +20,11 @@
  * SOFTWARE.
  */
 
-#ifndef __CARRIER_EXT_H__
-#define __CARRIER_EXT_H__
+#ifndef __ELASTOS_CARRIER_EXTENSION_H__
+#define __ELASTOS_CARRIER_EXTENSION_H__
 
 #include <stdint.h>
-#include <carrier.h>
+#include "carrier.h"
 
 #if defined(__APPLE__)
 #pragma GCC diagnostic push
@@ -214,16 +214,6 @@ CarrierExtension *carrier_get_extension(Carrier *carrier, const char *name);
 CARRIER_API
 void carrier_unregister_extension(Carrier *carrier, const char *name);
 
-/**
- * \~English
- * Set carrier last error code.
- *
- * @param
- *      err         [in] The error code to be set.
- */
-CARRIER_API
-void carrier_set_error(int err);
-
 #ifdef __cplusplus
 }
 #endif
@@ -232,4 +222,4 @@ void carrier_set_error(int err);
 #pragma GCC diagnostic pop
 #endif
 
-#endif /* __CARRIER_EXT_H__ */
+#endif /* __ELASTOS_CARRIER_EXTENSION_H__ */
