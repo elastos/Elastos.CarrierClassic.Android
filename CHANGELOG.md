@@ -1,3 +1,13 @@
+12/16/2020 Li Fenxiang  <lifenxiang@trinity-tech.io>
+
+Release-v6.0.1 Main changes:
+
+    - Internal bugfix for file-transfer module;
+    - Implemented the extension module for WebRTC with the latest native extension APIs;
+    - Fixed the issue related to the Gradle build project;
+    - Synchronized with using the latest native SDK v6.0.1
+    - Removed the deprecated public method: Carrier.sendFriendMessage()  to return value indicating as online or offline message.
+
 08/10/2020 Meng Xiaokun  <mengxiaokun@trinity-tech.io>
 
 Release-v5.6.3 Main changes:
