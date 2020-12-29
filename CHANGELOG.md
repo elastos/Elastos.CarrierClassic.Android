@@ -1,3 +1,9 @@
+12/29/2020 Li Fenxiang  <lifenxiang@trinity-tech.io>
+
+Release-v6.0.2-hotfix Main changes:
+
+    - Synchronized with using the latest native SDK v6.0.2-hotfix
+
 12/16/2020 Li Fenxiang  <lifenxiang@trinity-tech.io>
 
 Release-v6.0.1 Main changes:
